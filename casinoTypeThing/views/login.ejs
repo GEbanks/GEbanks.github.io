@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <form action="/login" method="post">
+        <input name="user" type="text" placeholder="Username">
+        <input name="pass" type="password" placeholder="Password">
+        <input type="submit" value="Submit">
+        <p> If your username does not exist, it will register you as a new user</p>
+    </form>
+
+    <div> 
+        <a href="https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login">Log in with Formbar instead</a>
+    </div>
+    <script>
+    <% if (user) { %>
+            console.log('User is logged in');
+            window.location.replace("/");
+       <% } else { %>
+            console.log('User is not logged in');
+    <%   }   %>
+    </script>
+</body>
+</html>
+

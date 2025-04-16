@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+
+<body>
+    <div>
+        <h1>Casino</h1>
+    </div>
+    <% if (user) { %>
+        <h2>Welcome, <%= user %>
+        </h2>
+        <div>
+            <h2>
+                <br>
+                <a href="/ATT">Around The Table</a>
+                <br>
+                <a href="blackjack">Blackjack</a>
+    
+                <% } else { %>
+                    <a href="/login">Enter City</a>
+                    <% } %>
+            </h2>
+        </div>
+
+</body>
+
+</html>

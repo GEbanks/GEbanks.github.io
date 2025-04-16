@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Around The Table</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .game {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            background-color: #025013;
+        }
+
+        .card {
+            margin: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>Around The Table</h1>
+        <h2>Welcome, <%= user %>
+        </h2>
+        <div class="game" id='mainDiv'>
+            <div id='cardsDiv'>
+                <div id='card1' class='card'>
+                </div>
+                <div id='card2' class='card'>
+                </div>
+                <div id='card3' class='card'>
+                </div>
+                <div id='card4' class='card'>
+                </div>
+            </div>
+            <button id='newRoundButton' onclick='newRound()'> New Round </button>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+
+
+        function newRound() {
+            socket.emit('newATTHand');
+            console.log('New round button clicked');
+        }
+
+        socket.on('newHand', (cards) => {
+            console.log('New hand received:', cards);
+            for (let i = 0; i < 4; i++) {
+                const cardDiv = document.getElementById(`card${i + 1}`);
+                if (cardDiv && cards[i]) {
+                    cardDiv.innerHTML = `
+                    <img 
+                        src="${cards[i].img}" 
+                        alt="${cards[i].name}" 
+                        style="width:100px;height:auto;display:block"
+                    >
+                `;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
