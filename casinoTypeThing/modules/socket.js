@@ -60,7 +60,7 @@ function socketH(socket) {
     }
   
     const hand = cards.slice(0, 4);
-    socket.emit('newHand', hand);
+    socket.emit('newATTHand', hand);
   }
   
   socket.on('newATTHand', () => {
