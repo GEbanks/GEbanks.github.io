@@ -26,7 +26,7 @@ const db = new sqlite3.Database('data/database.db', (err) => {
 });
 
 function blackjack(req, res) {
-    res.render('blackjack', { user: req.session.user });
+    res.render('blackjack', { user: req.session.user, money: req.session.money });
 }
 
 

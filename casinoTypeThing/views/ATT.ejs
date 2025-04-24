@@ -5,19 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Around The Table</title>
   <style>
-    body {
-      background-color: #f0f0f0;
-      font-family: Arial, sans-serif;
-      color: #333;
-    }
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
-    h2 {
-      text-align: center;
-      margin-top: 10px;
-    }
+    body { background-color: #f0f0f0; font-family: Arial, sans-serif; color: #333; }
+    h1 { text-align: center; margin-top: 20px; }
+    h2 { text-align: center; margin-top: 10px; }
     .game {
       display: flex;
       flex-direction: column;
@@ -28,35 +18,53 @@
       background-color: #025013;
       padding: 20px;
     }
-    .card {
-      margin: 10px;
-      text-align: center;
-    }
-    #cardsDiv img {
-      margin: 5px;
-    }
-    #choiceButtons button {
-      margin: 5px;
-      padding: 10px 20px;
-    }
+    .card { margin: 10px; text-align: center; }
+    #cardsDiv img { margin: 5px; }
+    #choiceButtons button { margin: 5px; padding: 10px 20px; }
   </style>
 </head>
 <body>
   <div class="game" id="mainDiv">
     <h1>Around The Table</h1>
     <h2>Welcome, <%= user %></h2>
-    <p id="gameText"></p>
-    <div id="choiceButtons"></div>
-    <button id="newRoundButton" onclick="newRound()">New Round</button>
-    <div id="cardsDiv"></div>
+      <p id="gameText"></p>
+      <div id="choiceButtons"></div>
+      <button id="newRoundButton" onclick="newRound()">New Round</button>
+      <div id="cardsDiv"></div>
+      <p id ="yourBet"></p>
+      <div id="betDiv">
+        <h2>Place Your Bet</h2>
+        <input type="number" id="betInput" placeholder="Enter your bet" />
+        <p id="betText"></p>
+        <button onclick="placeBet()">Place Bet</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
+    const user = '<%= user %>';
     const socket = io();
-    socket.on('connect', () => {
-      console.log('Connected to server');
-    });
+    socket.on('connect', () => console.log('Connected to server') , document.getElementById('newRoundButton').style.display ='none');
+
+    function placeBet() {
+      const bet = document.getElementById('betInput').value;
+      if (isNaN(bet) || bet <= 0) {
+        alert('Please enter a valid bet amount.');
+        return;
+      }
+      socket.emit('placeBet', { user: user, bet: bet });
+      console.log('Bet placed:', bet);
+    }
+
+function gameReset() {
+      document.getElementById('gameText').textContent = 'Game reset. Please place your bet.';
+      document.getElementById('cardsDiv').style.display = 'none';
+      document.getElementById('betDiv').style.display = 'block';
+      document.getElementById('newRoundButton').style.display = 'none';
+      document.getElementById('betText').textContent = '';
+      document.getElementById('yourBet').textContent = '';
+      document.getElementById('betInput').value = '';
+      document.getElementById('gameText').textContent = 'Place your bet to start a new the game.';
+    }
 
     function newRound() {
       socket.emit('newATTHand');
@@ -64,23 +72,30 @@
       document.getElementById('newRoundButton').style.display = 'none';
     }
 
+    socket.on('insufficientFunds', () => {
+      alert('You do not have enough funds to place this bet.');
+      document.getElementById('betInput').value = '';
+    });
+
+    socket.on('betPlaced', (bet) => {
+      console.log('Bet placed:', bet);
+      document.getElementById('betText').textContent = 'Bet of ' + bet + ' placed. Waiting for new game...';
+      document.getElementById('yourBet').textContent = 'Your bet: ' + bet;
+      document.getElementById('betDiv').style.display = 'none';
+      document.getElementById('newRoundButton').style.display = 'inline-block';
+    });
+
     socket.on('newATTHand', (cards) => {
       console.log('New hand received:', cards);
       document.getElementById('cardsDiv').innerHTML = '';
       document.getElementById('gameText').textContent = 'Red or Black?';
 
-      const choiceDiv = document.getElementById('choiceButtons');
-      choiceDiv.innerHTML = `
+      document.getElementById('choiceButtons').innerHTML = `
         <button id="redBtn">Red</button>
         <button id="blackBtn">Black</button>
       `;
-
-      document.getElementById('redBtn').addEventListener('click', () => {
-        handleGuess('red', cards);
-      });
-      document.getElementById('blackBtn').addEventListener('click', () => {
-        handleGuess('black', cards);
-      });
+      document.getElementById('redBtn').addEventListener('click', () => handleGuess('red', cards));
+      document.getElementById('blackBtn').addEventListener('click', () => handleGuess('black', cards));
     });
 
     function handleGuess(color, cards) {
@@ -89,203 +104,125 @@
       document.getElementById('choiceButtons').innerHTML = '';
 
       const suit = cards[0].suit;
-      let actual = '';
-      if (suit === 'hearts' || suit === 'diamonds') {
-        actual = 'red';
-      } else {
-        actual = 'black';
-      }
+      let actual = (suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black';
 
       if (color === actual) {
-        const resultText = 'You guessed right! The card was ' +
-          `${cards[0].name} of ${cards[0].suit}.`;
-        document.getElementById('gameText').textContent = resultText;
+        document.getElementById('gameText').textContent =
+          'You guessed right! The card was ' + `${cards[0].name}.`;
         document.getElementById('cardsDiv').innerHTML =
           `<img src="${cards[0].img}" style="width:100px;display:block">`;
 
-        const choiceDiv = document.getElementById('choiceButtons');
-        choiceDiv.innerHTML = `
+        document.getElementById('choiceButtons').innerHTML = `
           <button id="higher">Higher</button>
           <button id="lower">Lower</button>
         `;
-
-        document.getElementById('higher').addEventListener('click', () => {
-          handleHLGuess('Higher', cards);
-        });
-        document.getElementById('lower').addEventListener('click', () => {
-          handleHLGuess('Lower', cards);
-        });
-
-        function handleHLGuess(guess, cards) {
-          document.getElementById('higher').disabled = true;
-          document.getElementById('lower').disabled = true;
-          document.getElementById('choiceButtons').innerHTML = '';
-
-          const nextCard = cards[1];
-          let actual = '';
-          if (nextCard.value > cards[0].value) {
-            actual = 'Higher';
-          } else if (nextCard.value < cards[0].value) {
-            actual = 'Lower';
-          } else {
-            actual = 'Equal';
-          }
-
-          if (guess === actual) {
-            const resultText = 'You guessed right! The next card was ' +
-              `${cards[1].value} of ${cards[1].suit}.`;
-            document.getElementById('gameText').textContent = resultText;
-            document.getElementById('cardsDiv').innerHTML =
-              `<img src="${cards[1].img}" style="width:100px;display:block">`;
-
-            const choiceDiv = document.getElementById('choiceButtons');
-            choiceDiv.innerHTML = `
-              <button id="inside">Inside</button>
-              <button id="outside">Outside</button>
-            `;
-
-            document.getElementById('inside').addEventListener('click', () => {
-              handleIOGuess('inside', cards);
-            });
-            document.getElementById('outside').addEventListener('click', () => {
-              handleIOGuess('outside', cards);
-            });
-
-          } else {
-            const resultText = 'You guessed wrong! The next card was ' +
-              `${cards[1].value} of ${cards[1].suit}.`;
-            document.getElementById('gameText').textContent = resultText;
-            document.getElementById('cardsDiv').innerHTML =
-              `<img src="${cards[1].img}" style="width:100px;display:block">`;
-            document.getElementById('newRoundButton').style.display = 'inline-block';
-          }
-        }
-
-        function handleIOGuess(guess, cards) {
-          document.getElementById('inside').disabled = true;
-          document.getElementById('outside').disabled = true;
-          document.getElementById('choiceButtons').innerHTML = '';
-
-          const a = cards[0].value;
-          const b = cards[1].value;
-          const x = cards[2].value;
-          function isInside(a, b, x) {
-            const low = Math.min(a, b);
-            const high = Math.max(a, b);
-            return x > low && x < high;
-          }
-
-          let actual = '';
-          if (isInside(a, b, x)) {
-            actual = 'inside';
-          } else {
-            actual = 'outside';
-          }
-
-          if (guess === actual) {
-            const resultText = 'You guessed right! The next card was ' +
-              `${cards[2].name} of ${cards[2].suit}.`;
-            document.getElementById('gameText').textContent = resultText;
-            document.getElementById('cardsDiv').innerHTML =
-              `<img src="${cards[2].img}" style="width:100px;display:block">`;
-
-            const choiceDiv = document.getElementById('choiceButtons');
-            choiceDiv.innerHTML = `
-              <button id="Diamonds">Diamonds</button>
-              <button id="Hearts">Hearts</button>
-              <button id="Clubs">Clubs</button>
-              <button id="Spades">Spades</button>
-            `;
-
-            document.getElementById('Diamonds').addEventListener('click', () => {
-              handleSuitGuess('Diamonds', cards);
-            });
-            document.getElementById('Hearts').addEventListener('click', () => {
-              handleSuitGuess('Hearts', cards);
-            });
-            document.getElementById('Clubs').addEventListener('click', () => {
-              handleSuitGuess('Clubs', cards);
-            });
-            document.getElementById('Spades').addEventListener('click', () => {
-              handleSuitGuess('Spades', cards);
-            });
-
-            function handleSuitGuess(guess, cards) {
-              document.getElementById('Diamonds').disabled = true;
-              document.getElementById('Hearts').disabled = true;
-              document.getElementById('Clubs').disabled = true;
-              document.getElementById('Spades').disabled = true;
-              document.getElementById('choiceButtons').innerHTML = '';
-
-              const nextSuit = cards[3].suit;
-              let actual = '';
-              if (nextSuit === 'hearts') {
-                actual = 'Hearts';
-              } else if (nextSuit === 'diamonds') {
-                actual = 'Diamonds';
-              } else if (nextSuit === 'clubs') {
-                actual = 'Clubs';
-              } else {
-                actual = 'Spades';
-              }
-
-              const resultText = (guess == actual)
-                ? `You guessed right! The next card was ${cards[2].name} of ${cards[2].suit}.`
-                : `You guessed wrong! The next card was ${cards[2].name} of ${cards[2].suit}.`;
-
-              document.getElementById('gameText').textContent = resultText;
-              document.getElementById('cardsDiv').innerHTML =
-                `<img src="${cards[2].img}" style="width:100px;display:block">`;
-              document.getElementById('newRoundButton').style.display = 'inline-block';
-            }
-
-          } else {
-            const resultText = 'You guessed wrong! The next card was ' +
-              `${cards[2].name} of ${cards[2].suit}.`;
-            document.getElementById('gameText').textContent = resultText;
-            document.getElementById('cardsDiv').innerHTML =
-              `<img src="${cards[2].img}" style="width:100px;display:block">`;
-            document.getElementById('newRoundButton').style.display = 'inline-block';
-          }
-        }
-
-        function handleSuitGuess(guess, cards) {
-          document.getElementById('Diamonds').disabled = true;
-          document.getElementById('Hearts').disabled = true;
-          document.getElementById('Clubs').disabled = true;
-          document.getElementById('Spades').disabled = true;
-          document.getElementById('choiceButtons').innerHTML = '';
-
-          const nextSuit = cards[2].suit;
-          let actual = '';
-          if (nextSuit === 'hearts') {
-            actual = 'Hearts';
-          } else if (nextSuit === 'diamonds') {
-            actual = 'Diamonds';
-          } else if (nextSuit === 'clubs') {
-            actual = 'Clubs';
-          } else {
-            actual = 'Spades';
-          }
-
-          const resultText = (guess == actual)
-            ? `You guessed right! The next card was ${cards[3].name} of ${cards[3].suit}.`
-            : `You guessed wrong! The next card was ${cards[3].name} of ${cards[3].suit}.`;
-
-          document.getElementById('gameText').textContent = resultText;
-          document.getElementById('cardsDiv').innerHTML =
-            `<img src="${cards[2].img}" style="width:100px;display:block">`;
-          document.getElementById('newRoundButton').style.display = 'inline-block';
-        }
+        document.getElementById('higher').addEventListener('click', () => handleHLGuess('Higher', cards));
+        document.getElementById('lower').addEventListener('click', () => handleHLGuess('Lower', cards));
 
       } else {
-        const resultText = 'You guessed wrong! The card was ' +
-          `${cards[0].name} of ${cards[0].suit}.`;
-        document.getElementById('gameText').textContent = resultText;
+        document.getElementById('gameText').textContent =
+          'You guessed wrong! The card was ' + `${cards[0].name}.`;
         document.getElementById('cardsDiv').innerHTML =
           `<img src="${cards[0].img}" style="width:100px;display:block">`;
         document.getElementById('newRoundButton').style.display = 'inline-block';
+        setTimeoutval(() => {
+          gameReset();
+        }, 5000);
       }
+    }
+
+    function handleHLGuess(guess, cards) {
+      document.getElementById('higher').disabled = true;
+      document.getElementById('lower').disabled = true;
+      document.getElementById('choiceButtons').innerHTML = '';
+
+      const next = cards[1];
+      let actual = next.value > cards[0].value ? 'Higher'
+                 : next.value < cards[0].value ? 'Lower' : 'Equal';
+
+      if (guess === actual) {
+        document.getElementById('gameText').textContent =
+          'You guessed right! The next card was ' + `${next.name}.`;
+        document.getElementById('cardsDiv').innerHTML =
+          `<img src="${next.img}" style="width:100px;display:block">`;
+
+        document.getElementById('choiceButtons').innerHTML = `
+          <button id="inside">Inside</button>
+          <button id="outside">Outside</button>
+        `;
+        document.getElementById('inside').addEventListener('click', () => handleIOGuess('inside', cards));
+        document.getElementById('outside').addEventListener('click', () => handleIOGuess('outside', cards));
+
+      } else {
+        document.getElementById('gameText').textContent =
+          'You guessed wrong! The next card was ' + `${next.name}.`;
+        document.getElementById('cardsDiv').innerHTML =
+          `<img src="${next.img}" style="width:100px;display:block">`;
+        setTimeoutval(() => {
+          gameReset();
+        }, 5000);
+      }
+    }
+
+    function handleIOGuess(guess, cards) {
+      document.getElementById('inside').disabled = true;
+      document.getElementById('outside').disabled = true;
+      document.getElementById('choiceButtons').innerHTML = '';
+
+      const a = cards[0].value, b = cards[1].value, x = cards[2].value;
+      const inside = x > Math.min(a,b) && x < Math.max(a,b);
+      let actual = inside ? 'inside' : 'outside';
+
+      if (guess === actual) {
+        document.getElementById('gameText').textContent =
+          'You guessed right! The next card was ' + `${cards[2].name}.`;
+        document.getElementById('cardsDiv').innerHTML =
+          `<img src="${cards[2].img}" style="width:100px;display:block">`;
+
+        document.getElementById('choiceButtons').innerHTML = `
+          <button id="Diamonds">Diamonds</button>
+          <button id="Hearts">Hearts</button>
+          <button id="Clubs">Clubs</button>
+          <button id="Spades">Spades</button>
+        `;
+        ['Diamonds','Hearts','Clubs','Spades'].forEach(s =>
+          document.getElementById(s).addEventListener('click', () => handleSuitGuess(s, cards))
+        );
+
+      } else {
+        document.getElementById('gameText').textContent =
+          'You guessed wrong! The next card was ' + `${cards[2].name}.`;
+        document.getElementById('cardsDiv').innerHTML =
+          `<img src="${cards[2].img}" style="width:100px;display:block">`;
+        setTimeoutval(() => {
+          gameReset();
+        }, 5000);
+      }
+    }
+
+    function handleSuitGuess(guess, cards) {
+      ['Diamonds','Hearts','Clubs','Spades'].forEach(s =>
+        document.getElementById(s).disabled = true
+      );
+      document.getElementById('choiceButtons').innerHTML = '';
+
+      const next = cards[3];
+      let actual = '';
+      if (next.suit === 'hearts') actual = 'Hearts';
+      else if (next.suit === 'diamonds') actual = 'Diamonds';
+      else if (next.suit === 'clubs') actual = 'Clubs';
+      else actual = 'Spades';
+
+      const resultText = guess === actual
+        ? `You guessed right! The final card was ${next.name}.`
+        : `You guessed wrong! The final card was ${next.name}.`;
+
+      document.getElementById('gameText').textContent = resultText;
+      document.getElementById('cardsDiv').innerHTML =
+        `<img src="${next.img}" style="width:100px;display:block">`;
+        setTimeout(() => {
+          gameReset();
+        }, 5000);
     }
   </script>
 </body>

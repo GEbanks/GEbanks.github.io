@@ -67,6 +67,36 @@ function socketH(socket) {
     newATTHand();
   });
 
+  socket.on('placeBet', (data) => {
+    const bet = data.bet;
+    const user = data.user;
+  
+    console.log('bet:', bet);
+    console.log('user:', user);
+  
+    db.get('SELECT * FROM users WHERE username=?;', [user], (err, row) => {
+      if (err) {
+        console.error(err);
+      } else if (!row) {
+        console.log('User not found');
+      } else {
+        if (row.money >= bet) {
+          db.run('UPDATE users SET money = money - ? WHERE username = ?;', [bet, user], (err) => {
+            if (err) {
+              console.error(err);
+            } else {
+              socket.emit('betPlaced', bet);
+              console.log('Bet placed:', bet);
+            }
+          });
+        } else {
+          socket.emit('insufficientFunds');
+          console.log('Insufficient funds');
+        }
+      }
+    });
+  });
+
 }
 
 module.exports = { socketH };
