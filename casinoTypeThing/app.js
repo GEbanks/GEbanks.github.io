@@ -19,7 +19,7 @@ const sessionMiddleware = session({
 });
 
 app.use(sessionMiddleware);
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 const server = app.listen(PORT, () => {console.log(`Server running on port ${PORT}`);});
 const io = socketIo(server);
 
@@ -28,8 +28,6 @@ io.use(sharedsession(sessionMiddleware, {
 }));
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
 function isAuthenticated(req, res, next) {
     if (req.session.user) {
         next();

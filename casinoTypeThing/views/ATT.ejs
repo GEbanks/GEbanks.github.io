@@ -7,9 +7,11 @@
   <title>Around The Table</title>
   <style>
     body {
-      background-color: #f0f0f0;
       font-family: Arial, sans-serif;
       color: #333;
+      background-image: url('img/floor.png');
+      margin-top: 0px;
+      border-top: 0px;
     }
 
     h1 {
@@ -26,11 +28,19 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 60%;
       height: 80vh;
       border: 2px solid #000;
       border-radius: 10px;
+      box-shadow: 0 0 10px rgba(5, 5, 5, 0.5);
+      border-bottom-left-radius: 200px;
+      border-bottom-right-radius: 200px;
       background-color: #025013;
       padding: 20px;
+      margin: auto;
+      border-top: 0px;
+      border-top-left-radius: 0px;
+      border-top-right-radius: 0px;
     }
 
     .card {
@@ -154,8 +164,8 @@
             'You guessed wrong! The card was ' + `${cards[0].name}.`;
           document.getElementById('cardsDiv').innerHTML =
             `<img src="${cards[0].img}" style="width:100px;display:block">`;
-          document.getElementById('newRoundButton').style.display = 'inline-block';
-          setTimeoutval(() => {
+          document.getElementById('newRoundButton').style.display = 'none';
+          setTimeout(() => {
             gameReset();
           }, 5000);
         }
@@ -188,7 +198,7 @@
             'You guessed wrong! The next card was ' + `${next.name}.`;
           document.getElementById('cardsDiv').innerHTML =
             `<img src="${next.img}" style="width:100px;display:block">`;
-          setTimeoutval(() => {
+          setTimeout(() => {
             gameReset();
           }, 5000);
         }
