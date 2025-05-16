@@ -35,9 +35,9 @@ function socketH(socket) {
       { name: '8', short: '8', value: 8 },
       { name: '9', short: '9', value: 9 },
       { name: '10', short: '10', value: 10 },
-      { name: 'jack', short: 'J', value: 10 },
-      { name: 'queen', short: 'Q', value: 10 },
-      { name: 'king', short: 'K', value: 10 }
+      { name: 'jack', short: 'J', value: 11 },
+      { name: 'queen', short: 'Q', value: 12 },
+      { name: 'king', short: 'K', value: 13 }
     ];
   
     const cards = [];

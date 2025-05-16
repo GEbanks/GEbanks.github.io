@@ -6,12 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Around The Table</title>
   <style>
+    @font-face {
+      font-family: 'Casino3DFilledMarquee';
+      src: url('/casino_2/Casino3DFilledMarquee-Italic.ttf') format('truetype');
+      font-style: italic;
+      font-weight: normal;
+      font-display: swap;
+    }
+
     body {
       font-family: Arial, sans-serif;
       color: #333;
       background-image: url('img/floor.png');
-      margin-top: 0px;
-      border-top: 0px;
+      margin: 0;
     }
 
     h1 {
@@ -22,249 +29,326 @@
     h2 {
       text-align: center;
       margin-top: 10px;
+      color: #fff;
     }
 
     .game {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70vw;
+      height: 50vh;
+      border: 20px solid black;
+      border-radius: 200px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 60%;
-      height: 80vh;
-      border: 2px solid #000;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(5, 5, 5, 0.5);
-      border-bottom-left-radius: 200px;
-      border-bottom-right-radius: 200px;
+      justify-content: flex-start;
       background-color: #025013;
       padding: 20px;
-      margin: auto;
-      border-top: 0px;
-      border-top-left-radius: 0px;
-      border-top-right-radius: 0px;
+      box-shadow: 0 0 10px rgba(5, 5, 5, 0.5);
     }
 
-    .card {
-      margin: 10px;
+    /* card-flip CSS */
+    .flip-container {
+      perspective: 1000px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .flipper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+    }
+
+    .flipper.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .back,
+    .front {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+    }
+
+    .back {
+      transform: rotateY(0deg);
+    }
+
+    .front {
+      transform: rotateY(180deg);
+    }
+
+    #cardBoxes {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .card-box {
+      width: 80px;
+      height: 120px;
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 2px solid #fff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #betDiv {
       text-align: center;
-    }
-
-    #cardsDiv img {
-      margin: 5px;
+      margin-bottom: 20px;
     }
 
     #choiceButtons button {
       margin: 5px;
       padding: 10px 20px;
     }
+
+    #titleText {
+      font-family: 'Casino3DFilledMarquee', sans-serif;
+      font-size: 100px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 2px 2px 4px #d30c0c;
+    }
+
+    #cardDeckImage {
+      width: 50px;
+      height: 75px;
+      position: relative;
+      top: -5px;
+      left: 0px;
+      z-index: -1;
+    }
   </style>
 </head>
 
 <body>
+  <h1 id="titleText">Around The Table</h1>
+  <h2>Welcome, <%= user %>
+  </h2>
+
   <div class="game" id="mainDiv">
-    <h1>Around The Table</h1>
-    <h2>Welcome, <%= user %>
-    </h2>
-    <p id="gameText"></p>
-    <div id="choiceButtons"></div>
-    <button id="newRoundButton" onclick="newRound()">New Round</button>
-    <div id="cardsDiv"></div>
-    <p id="yourBet"></p>
+    <!-- Four flip-containers -->
+    <div id="cardBoxes">
+      <div class="card-box">
+        <div class="flip-container">
+          <div class="flipper">
+            <img class="back" src="/img/cardDeckImage.png" alt="card back">
+            <img class="front" src="" alt="card face">
+          </div>
+        </div>
+      </div>
+      <div class="card-box">
+        <div class="flip-container">
+          <div class="flipper">
+            <img class="back" src="/img/cardDeckImage.png" alt="card back">
+            <img class="front" src="" alt="card face">
+          </div>
+        </div>
+      </div>
+      <div class="card-box">
+        <div class="flip-container">
+          <div class="flipper">
+            <img class="back" src="/img/cardDeckImage.png" alt="card back">
+            <img class="front" src="" alt="card face">
+          </div>
+        </div>
+      </div>
+      <div class="card-box">
+        <div class="flip-container">
+          <div class="flipper">
+            <img class="back" src="/img/cardDeckImage.png" alt="card back">
+            <img class="front" src="" alt="card face">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bet form -->
     <div id="betDiv">
       <h2>Place Your Bet</h2>
       <input type="number" id="betInput" placeholder="Enter your bet" />
       <p id="betText"></p>
-      <button onclick="placeBet()">Place Bet</button>
+      <button id="placeBetButton">Place Bet</button>
+      <p id="yourBet"></p>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const user = '<%= user %>';
-      const socket = io();
-      socket.on('connect', () => console.log('Connected to server'), document.getElementById('newRoundButton').style.display = 'none');
+    <p id="gameText"></p>
+    <div id="choiceButtons"></div>
+    <button id="newRoundButton">New Round</button>
+  </div>
 
-      function placeBet() {
-        const bet = document.getElementById('betInput').value;
-        if (isNaN(bet) || bet <= 0) {
-          alert('Please enter a valid bet amount.');
-          return;
-        }
-        socket.emit('placeBet', { user: user, bet: bet });
-        console.log('Bet placed:', bet);
-      }
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const user = '<%= user %>';
+    const socket = io();
+    const betDiv = document.getElementById('betDiv');
+    const yourBet = document.getElementById('yourBet');
+    const betInput = document.getElementById('betInput');
+    const betText = document.getElementById('betText');
+    const placeBetBtn = document.getElementById('placeBetButton');
+    const gameText = document.getElementById('gameText');
+    const choiceButtons = document.getElementById('choiceButtons');
+    const newRoundBtn = document.getElementById('newRoundButton');
+    const cardBoxes = Array.from(document.querySelectorAll('.card-box'));
 
-      function gameReset() {
-        document.getElementById('gameText').textContent = 'Game reset. Please place your bet.';
-        document.getElementById('cardsDiv').style.display = 'none';
-        document.getElementById('betDiv').style.display = 'block';
-        document.getElementById('newRoundButton').style.display = 'none';
-        document.getElementById('betText').textContent = '';
-        document.getElementById('yourBet').textContent = '';
-        document.getElementById('betInput').value = '';
-        document.getElementById('gameText').textContent = 'Place your bet to start a new the game.';
-      }
-
-      function newRound() {
-        bet = document.getElementById('yourBet').textContent.split(': ')[1];
-        console.log('Bet:', bet);
-        socket.emit('newATTHand', { user: user, bet: bet });
-        console.log('New round button clicked');
-        document.getElementById('newRoundButton').style.display = 'none';
-        
-      }
-
-      socket.on('insufficientFunds', () => {
-        alert('You do not have enough funds to place this bet.');
-        document.getElementById('betInput').value = '';
+    function resetFlips() {
+      cardBoxes.forEach(box => {
+        const flipper = box.querySelector('.flipper');
+        flipper.classList.remove('flipped');
+        box.querySelector('.front').src = '';
       });
+    }
 
-      socket.on('betPlaced', (bet) => {
-        console.log('Bet placed:', bet);
-        document.getElementById('betText').textContent = 'Bet of ' + bet + ' placed. Waiting for new game...';
-        document.getElementById('yourBet').textContent = 'Your bet: ' + bet;
-        document.getElementById('betDiv').style.display = 'none';
-        document.getElementById('newRoundButton').style.display = 'inline-block';
-      });
+    function gameReset() {
+      betDiv.style.display = 'block';
+      newRoundBtn.style.display = 'none';
+      gameText.textContent = 'Place your bet to start a new game.';
+      choiceButtons.innerHTML = '';
+      betText.textContent = '';
+      yourBet.textContent = '';
+      betInput.value = '';
+      resetFlips();
+    }
+    gameReset();
 
-      socket.on('newATTHand', (cards) => {
-        console.log('New hand received:', cards);
-        document.getElementById('cardsDiv').innerHTML = '';
-        document.getElementById('gameText').textContent = 'Red or Black?';
+    socket.on('connect', () => console.log('Connected to server'));
 
-        document.getElementById('choiceButtons').innerHTML = `
+    placeBetBtn.addEventListener('click', () => {
+      const bet = Number(betInput.value);
+      if (!bet || bet <= 0) return alert('Please enter a valid bet amount.');
+      socket.emit('placeBet', { user, bet });
+    });
+
+    socket.on('insufficientFunds', () => {
+      alert('You do not have enough funds.');
+      betInput.value = '';
+    });
+
+    socket.on('betPlaced', bet => {
+      betText.textContent = 'Bet of ' + bet + ' placed.';
+      yourBet.textContent = 'Your bet: ' + bet;
+      betDiv.style.display = 'none';
+      newRoundBtn.style.display = 'inline-block';
+    });
+
+    socket.on('newATTHand', cards => {
+      gameText.textContent = 'Red or Black?';
+      choiceButtons.innerHTML = `
         <button id="redBtn">Red</button>
         <button id="blackBtn">Black</button>
       `;
-        document.getElementById('redBtn').addEventListener('click', () => handleGuess('red', cards));
-        document.getElementById('blackBtn').addEventListener('click', () => handleGuess('black', cards));
-      });
+      document.getElementById('redBtn')
+        .addEventListener('click', () => handleGuess('red', cards));
+      document.getElementById('blackBtn')
+        .addEventListener('click', () => handleGuess('black', cards));
+    });
 
-      function handleGuess(color, cards) {
-        document.getElementById('redBtn').disabled = true;
-        document.getElementById('blackBtn').disabled = true;
-        document.getElementById('choiceButtons').innerHTML = '';
+    newRoundBtn.addEventListener('click', () => {
+      const bet = yourBet.textContent.split(': ')[1];
+      socket.emit('newATTHand', { user, bet });
+      newRoundBtn.style.display = 'none';
+    });
 
-        const suit = cards[0].suit;
-        let actual = (suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black';
+    function handleGuess(color, cards) {
+      choiceButtons.querySelectorAll('button').forEach(b => b.disabled = true);
+      const first = cards[0];
+      const box0 = cardBoxes[0];
+      box0.querySelector('.front').src = first.img;
+      box0.querySelector('.flipper').classList.add('flipped');
+      const actual = (first.suit === 'hearts' || first.suit === 'diamonds') ? 'red' : 'black';
 
-        if (color === actual) {
-          document.getElementById('gameText').textContent =
-            'You guessed right! The card was ' + `${cards[0].name}.`;
-          document.getElementById('cardsDiv').innerHTML =
-            `<img src="${cards[0].img}" style="width:100px;display:block">`;
-
-          document.getElementById('choiceButtons').innerHTML = `
+      if (color === actual) {
+        gameText.textContent = `You guessed right! ${first.name}. Higher or Lower?`;
+        choiceButtons.innerHTML = `
           <button id="higher">Higher</button>
           <button id="lower">Lower</button>
         `;
-          document.getElementById('higher').addEventListener('click', () => handleHLGuess('Higher', cards));
-          document.getElementById('lower').addEventListener('click', () => handleHLGuess('Lower', cards));
-
-        } else {
-          document.getElementById('gameText').textContent =
-            'You guessed wrong! The card was ' + `${cards[0].name}.`;
-          document.getElementById('cardsDiv').innerHTML =
-            `<img src="${cards[0].img}" style="width:100px;display:block">`;
-          document.getElementById('newRoundButton').style.display = 'none';
-          setTimeout(() => {
-            gameReset();
-          }, 5000);
-        }
+        document.getElementById('higher')
+          .addEventListener('click', () => handleHLGuess('Higher', cards));
+        document.getElementById('lower')
+          .addEventListener('click', () => handleHLGuess('Lower', cards));
+      } else {
+        gameText.textContent = `Wrong! ${first.name}.`;
+        setTimeout(gameReset, 2000);
       }
+    }
 
-      function handleHLGuess(guess, cards) {
-        document.getElementById('higher').disabled = true;
-        document.getElementById('lower').disabled = true;
-        document.getElementById('choiceButtons').innerHTML = '';
+    function handleHLGuess(guess, cards) {
+      choiceButtons.querySelectorAll('button').forEach(b => b.disabled = true);
+      const second = cards[1];
+      const box1 = cardBoxes[1];
+      box1.querySelector('.front').src = second.img;
+      box1.querySelector('.flipper').classList.add('flipped');
+      const actual = second.value > cards[0].value ? 'Higher' : 'Lower';
 
-        const next = cards[1];
-        let actual = next.value > cards[0].value ? 'Higher'
-          : next.value < cards[0].value ? 'Lower' : 'Equal';
-
-        if (guess === actual) {
-          document.getElementById('gameText').textContent =
-            'You guessed right! The next card was ' + `${next.name}.`;
-          document.getElementById('cardsDiv').innerHTML =
-            `<img src="${next.img}" style="width:100px;display:block">`;
-
-          document.getElementById('choiceButtons').innerHTML = `
+      if (guess === actual) {
+        gameText.textContent = `Right! ${second.name}. Inside or Outside?`;
+        choiceButtons.innerHTML = `
           <button id="inside">Inside</button>
           <button id="outside">Outside</button>
         `;
-          document.getElementById('inside').addEventListener('click', () => handleIOGuess('inside', cards));
-          document.getElementById('outside').addEventListener('click', () => handleIOGuess('outside', cards));
-
-        } else {
-          document.getElementById('gameText').textContent =
-            'You guessed wrong! The next card was ' + `${next.name}.`;
-          document.getElementById('cardsDiv').innerHTML =
-            `<img src="${next.img}" style="width:100px;display:block">`;
-          setTimeout(() => {
-            gameReset();
-          }, 5000);
-        }
+        document.getElementById('inside')
+          .addEventListener('click', () => handleIOGuess('inside', cards));
+        document.getElementById('outside')
+          .addEventListener('click', () => handleIOGuess('outside', cards));
+      } else {
+        gameText.textContent = `Wrong! ${second.name}.`;
+        setTimeout(gameReset, 2000);
       }
+    }
 
-      function handleIOGuess(guess, cards) {
-        document.getElementById('inside').disabled = true;
-        document.getElementById('outside').disabled = true;
-        document.getElementById('choiceButtons').innerHTML = '';
+    function handleIOGuess(guess, cards) {
+      choiceButtons.querySelectorAll('button').forEach(b => b.disabled = true);
+      const third = cards[2];
+      const box2 = cardBoxes[2];
+      box2.querySelector('.front').src = third.img;
+      box2.querySelector('.flipper').classList.add('flipped');
+      const [a, b, x] = [cards[0].value, cards[1].value, third.value];
+      const inside = x > Math.min(a, b) && x < Math.max(a, b);
+      const actual = inside ? 'inside' : 'outside';
 
-        const a = cards[0].value, b = cards[1].value, x = cards[2].value;
-        const inside = x > Math.min(a, b) && x < Math.max(a, b);
-        let actual = inside ? 'inside' : 'outside';
-
-        if (guess === actual) {
-          document.getElementById('gameText').textContent =
-            'You guessed right! The next card was ' + `${cards[2].name}.`;
-          document.getElementById('cardsDiv').innerHTML =
-            `<img src="${cards[2].img}" style="width:100px;display:block">`;
-
-          document.getElementById('choiceButtons').innerHTML = `
+      if (guess === actual) {
+        gameText.textContent = `Right! ${third.name}. Suit?`;
+        choiceButtons.innerHTML = `
           <button id="Diamonds">Diamonds</button>
           <button id="Hearts">Hearts</button>
           <button id="Clubs">Clubs</button>
           <button id="Spades">Spades</button>
         `;
-          ['Diamonds', 'Hearts', 'Clubs', 'Spades'].forEach(s =>
-            document.getElementById(s).addEventListener('click', () => handleSuitGuess(s, cards))
-          );
-
-        } else {
-          document.getElementById('gameText').textContent =
-            'You guessed wrong! The next card was ' + `${cards[2].name}.`;
-          document.getElementById('cardsDiv').innerHTML =
-            `<img src="${cards[2].img}" style="width:100px;display:block">`;
-          setTimeoutval(() => {
-            gameReset();
-          }, 5000);
-        }
-      }
-
-      function handleSuitGuess(guess, cards) {
         ['Diamonds', 'Hearts', 'Clubs', 'Spades'].forEach(s =>
-          document.getElementById(s).disabled = true
+          document.getElementById(s)
+            .addEventListener('click', () => handleSuitGuess(s, cards))
         );
-        document.getElementById('choiceButtons').innerHTML = '';
-
-        const next = cards[3];
-        let actual = '';
-        if (next.suit === 'hearts') actual = 'Hearts';
-        else if (next.suit === 'diamonds') actual = 'Diamonds';
-        else if (next.suit === 'clubs') actual = 'Clubs';
-        else actual = 'Spades';
-
-        const resultText = guess === actual
-          ? `You guessed right! The final card was ${next.name}.`
-          : `You guessed wrong! The final card was ${next.name}.`;
-
-        document.getElementById('gameText').textContent = resultText;
-        document.getElementById('cardsDiv').innerHTML =
-          `<img src="${next.img}" style="width:100px;display:block">`;
-        setTimeout(() => {
-          gameReset();
-        }, 5000);
+      } else {
+        gameText.textContent = `Wrong! ${third.name}.`;
+        setTimeout(gameReset, 2000);
       }
-    </script>
+    }
+
+    function handleSuitGuess(guess, cards) {
+      choiceButtons.querySelectorAll('button').forEach(b => b.disabled = true);
+      const fourth = cards[3];
+      const box3 = cardBoxes[3];
+      box3.querySelector('.front').src = fourth.img;
+      box3.querySelector('.flipper').classList.add('flipped');
+      const actual = fourth.suit.charAt(0).toUpperCase() + fourth.suit.slice(1);
+      gameText.textContent = guess === actual
+        ? `You got it! Final card was ${fourth.name}.`
+        : `Nope! Final card was ${fourth.name}.`;
+      setTimeout(gameReset, 2000);
+    }
+  </script>
 </body>
 
 </html>
