@@ -5,132 +5,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Around The Table</title>
+  <link rel="stylesheet" href="/css/att.css">
   <style>
-    @font-face {
-      font-family: 'Casino3DFilledMarquee';
-      src: url('/casino_2/Casino3DFilledMarquee-Italic.ttf') format('truetype');
-      font-style: italic;
-      font-weight: normal;
-      font-display: swap;
-    }
-
     body {
       font-family: Arial, sans-serif;
       color: #333;
       background-image: url('img/floor.png');
       margin: 0;
     }
-
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-top: 10px;
-      color: #fff;
-    }
-
-    .game {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 70vw;
-      height: 50vh;
-      border: 20px solid black;
-      border-radius: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      background-color: #025013;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(5, 5, 5, 0.5);
-    }
-
-    /* card-flip CSS */
-    .flip-container {
-      perspective: 1000px;
-      width: 100%;
-      height: 100%;
-    }
-
-    .flipper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      transition: transform 0.6s;
-    }
-
-    .flipper.flipped {
-      transform: rotateY(180deg);
-    }
-
-    .back,
-    .front {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 8px;
-    }
-
-    .back {
-      transform: rotateY(0deg);
-    }
-
-    .front {
-      transform: rotateY(180deg);
-    }
-
-    #cardBoxes {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      width: 100%;
-      justify-content: center;
-    }
-
-    .card-box {
-      width: 80px;
-      height: 120px;
-      background-color: rgba(0, 0, 0, 0.2);
-      border: 2px solid #fff;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    #betDiv {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    #choiceButtons button {
-      margin: 5px;
-      padding: 10px 20px;
-    }
-
-    #titleText {
-      font-family: 'Casino3DFilledMarquee', sans-serif;
-      font-size: 100px;
-      text-align: center;
-      color: #fff;
-      text-shadow: 2px 2px 4px #d30c0c;
-    }
-
-    #cardDeckImage {
-      width: 50px;
-      height: 75px;
-      position: relative;
-      top: -5px;
-      left: 0px;
-      z-index: -1;
-    }
   </style>
 </head>
+<!--CCCCC   LL      IIIII   EEEEE   NN  NN   TTTTT         U   U   IIIII
+    CC      LL        I     EE      NNN NN     T           U   U     I
+    CC      LL        I     EEEEE   NNNNNN     T           U   U     I
+    CC      LL        I     EE      NN NNN     T           U   U     I
+    CCCCC   LLLLL   IIIII   EEEEE   NN  NN     T           UUUUU   IIIII -->
 
 <body>
   <h1 id="titleText">Around The Table</h1>
@@ -138,7 +27,7 @@
   </h2>
 
   <div class="game" id="mainDiv">
-    <!-- Four flip-containers -->
+    <button id="backoutButton">Back Out</button>
     <div id="cardBoxes">
       <div class="card-box">
         <div class="flip-container">
@@ -174,7 +63,7 @@
       </div>
     </div>
 
-    <!-- Bet form -->
+
     <div id="betDiv">
       <h2>Place Your Bet</h2>
       <input type="number" id="betInput" placeholder="Enter your bet" />
@@ -190,6 +79,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
+    const multipliers = [2, 3, 5, 20];
     const user = '<%= user %>';
     const socket = io();
     const betDiv = document.getElementById('betDiv');
@@ -201,6 +91,7 @@
     const choiceButtons = document.getElementById('choiceButtons');
     const newRoundBtn = document.getElementById('newRoundButton');
     const cardBoxes = Array.from(document.querySelectorAll('.card-box'));
+    let currentStage = 0;   
 
     function resetFlips() {
       cardBoxes.forEach(box => {
@@ -221,6 +112,13 @@
       resetFlips();
     }
     gameReset();
+
+// SSSSS   OOOOO   CCCCC   K   K   EEEEE   TTTTT         SSSSS   TTTTT    U   U   FFFFF   FFFFF
+// S       O   O   C       K  K    EE        T           S         T      U   U   F       F
+// SSSSS   O   O   C       KKK     EEEEE     T           SSSSS     T      U   U   FFFF    FFFF
+//     S   O   O   C       K  K    EE        T               S     T      U   U   F       F
+// SSSSS   OOOOO   CCCCC   K   K   EEEEE     T           SSSSS     T       UUU    F       F
+
 
     socket.on('connect', () => console.log('Connected to server'));
 
@@ -260,7 +158,15 @@
       newRoundBtn.style.display = 'none';
     });
 
+// RRRR    BBBB      GGGGG   U   U   EEEEE   SSSSS   SSSSS
+// RR  R   BB  B     G       U   U   EE      S       S
+// RRRR    BBBB      G  GGG  U   U   EEEEE   SSSSS   SSSSS
+// RR R    BB  B     G    G  U   U   EE          S        S
+// RR  R   BBBB      GGGGG    UUU    EEEEE   SSSSS   SSSSS
+
+
     function handleGuess(color, cards) {
+      round = 1;
       choiceButtons.querySelectorAll('button').forEach(b => b.disabled = true);
       const first = cards[0];
       const box0 = cardBoxes[0];
@@ -270,10 +176,11 @@
 
       if (color === actual) {
         gameText.textContent = `You guessed right! ${first.name}. Higher or Lower?`;
-        choiceButtons.innerHTML = `
-          <button id="higher">Higher</button>
-          <button id="lower">Lower</button>
-        `;
+        choiceButtons.innerHTML = 
+          `<button id="higher">Higher</button>
+          <button id="lower">Lower</button>`
+        winnings = Number(yourBet.textContent.split(': ')[1]) * 2;
+        ;
         document.getElementById('higher')
           .addEventListener('click', () => handleHLGuess('Higher', cards));
         document.getElementById('lower')
@@ -284,7 +191,15 @@
       }
     }
 
+// H   H   L        GGGGG   U   U   EEEEE   SSSSS   SSSSS
+// H   H   L        G       U   U   EE      S       S
+// HHHHH   L        G  GGG  U   U   EEEEE   SSSSS   SSSSS
+// H   H   L        G    G  U   U   EE          S        S
+// H   H   LLLLL    GGGGG    UUU    EEEEE   SSSSS   SSSSS
+
+
     function handleHLGuess(guess, cards) {
+      round = 2;
       choiceButtons.querySelectorAll('button').forEach(b => b.disabled = true);
       const second = cards[1];
       const box1 = cardBoxes[1];
@@ -298,6 +213,7 @@
           <button id="inside">Inside</button>
           <button id="outside">Outside</button>
         `;
+        winnnigs = Number(yourBet.textContent.split(': ')[1]) * 3;
         document.getElementById('inside')
           .addEventListener('click', () => handleIOGuess('inside', cards));
         document.getElementById('outside')
@@ -308,7 +224,15 @@
       }
     }
 
+// IIIII   OOOOO      GGGGG  U   U   EEEEE   SSSSS   SSSSS
+//   I     O   O     G       U   U   EE      S       S
+//   I     O   O     G  GGG  U   U   EEEEE   SSSSS   SSSSS
+//   I     O   O     G    G  U   U   EE          S        S
+// IIIII   OOOOO      GGGGG   UUU    EEEEE   SSSSS   SSSSS
+
+
     function handleIOGuess(guess, cards) {
+      round = 3;
       choiceButtons.querySelectorAll('button').forEach(b => b.disabled = true);
       const third = cards[2];
       const box2 = cardBoxes[2];
@@ -326,6 +250,7 @@
           <button id="Clubs">Clubs</button>
           <button id="Spades">Spades</button>
         `;
+        winnings = Number(yourBet.textContent.split(': ')[1]) * 5;
         ['Diamonds', 'Hearts', 'Clubs', 'Spades'].forEach(s =>
           document.getElementById(s)
             .addEventListener('click', () => handleSuitGuess(s, cards))
@@ -336,19 +261,44 @@
       }
     }
 
+// SSSSS   U   U   IIIII   TTTTT        GGGGG   U   U   EEEEE   SSSSS   SSSSS
+// S       U   U     I       T          G       U   U   EE      S       S
+// SSSSS   U   U     I       T          G  GGG  U   U   EEEEE   SSSSS   SSSSS
+//     S   U   U     I       T          G    G  U   U   EE          S        S
+// SSSSS    UUU    IIIII     T           GGGGG   UUU    EEEEE   SSSSS   SSSSS
+
+
     function handleSuitGuess(guess, cards) {
+      round = 4;
       choiceButtons.querySelectorAll('button').forEach(b => b.disabled = true);
       const fourth = cards[3];
       const box3 = cardBoxes[3];
       box3.querySelector('.front').src = fourth.img;
       box3.querySelector('.flipper').classList.add('flipped');
       const actual = fourth.suit.charAt(0).toUpperCase() + fourth.suit.slice(1);
-      gameText.textContent = guess === actual
-        ? `You got it! Final card was ${fourth.name}.`
-        : `Nope! Final card was ${fourth.name}.`;
+      if (guess === actual) {
+        `You got it! Final card was ${fourth.name}.`
+        endRound(winnings);
+        setTimeout(gameReset, 5000);
+      } else {
+        gameText.textContent = `Wrong! ${fourth.name}.`;
+        setTimeout(gameReset, 2000);
+      }
+    }
+
+// EEEEE   NN  NN   DDDDD      RRRR     OOOOO   U   U   NN  NN   DDDDD
+// EE      NNN NN   DD  DD     RR  RR  OO   OO  U   U   NNN NN   DD  DD
+// EEEEE   NNNNNN   DD   DD    RRRR    OO   OO  U   U   NNNNNN   DD   DD
+// EE      NN NNN   DD  DD     RR  RR  OO   OO  U   U   NN NNN   DD  DD
+// EEEEE   NN  NN   DDDDD      RR   RR  OOOOO   UUUUU   NN  NN   DDDDD
+
+
+    function endRound(winnings) {
+      gameText.textContent = `You won ${winnings}!`;
+      socket.emit('updateFunds', { user, winnings });
       setTimeout(gameReset, 2000);
     }
-  </script>
+    </script>
 </body>
 
 </html>
