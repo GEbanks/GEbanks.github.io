@@ -52,5 +52,15 @@ app.get('/casino', isAuthenticated, routes.casino);
 
 app.get('/ATT', isAuthenticated, routes.ATT);
 
+app.post('/chooseUsername',routes.chooseUsernamePost);
+
+app.get( '/chooseUsername',  routes.chooseUsername);
+
+app.get('/blackjack', isAuthenticated, routes.blackjack);
+
+app.get('/logout', routes.logout);
+
+app.get('/janitor', isAuthenticated, routes.janitor);
+
 io.on('connection', socket.socketH);
 

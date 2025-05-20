@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>janitor game</h1>
+    <canvas height=700 width=700 style="border: 1px solid black"></canvas>
+</body>
+<script src="socket.io/socket.io.js"></script>
+
+<button id='end' onclick="end()" style="display: none;">End</button>
+<button id='start' onclick="start()">Start</button>
+<br>
+<br>
+<a href="/jobs">Back to jobs</a>
+<script>
+    let socket = io();
+    let currentUser = '<%= user %>';
+
+    let canvas = document.querySelector('canvas');
+    let ctx = canvas.getContext('2d');
+    let endbtn = document.querySelector('#end');
+    let startbtn = document.querySelector('#start');
+
+    let score = 0;
+    let enemies = [];
+
+    class box {
+        constructor(x, y, w, h) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+        }
+
+        draw() {
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+        }
+
+        clicked(x, y) {
+            
+        }
+    }
+    // Math.floor(Math.random() * 670)
+    console.log(canvas.getBoundingClientRect());
+    
+    canvas.addEventListener('click', function(e) {
+        let x = e.clientX - canvas.getBoundingClientRect().left;
+        let y = e.clientY - canvas.getBoundingClientRect().top;
+        for (let i = 0; i < enemies.length; i++) {
+            if (x > enemies[i].x && x < enemies[i].x + enemies[i].w && y > enemies[i].y && y < enemies[i].y + enemies[i].h) {
+                ctx.clearRect(enemies[i].x, enemies[i].y, enemies[i].w, enemies[i].h);  
+                enemies.splice(i, 1);
+                score++;
+            }
+        }
+    });
+    
+    let game;
+
+    function end() {
+        clearInterval(game);
+        ctx.clearRect(0, 0, 700, 700);
+        ctx.font = '30px Arial';
+        ctx.fillText('Game Over', 300, 300);
+        ctx.fillText('Score: ' + score, 300, 350);
+        ctx.fillText('Money: ' + score, 300, 400);
+        socket.emit('moneyMade', {money: score, user: currentUser});
+        endbtn.style.display = 'none';
+        startbtn.style.display = 'block';
+    }
+    
+    function start() {
+        ctx.clearRect(0, 0, 700, 700);
+        game = setInterval(function() {
+            let x = Math.floor(Math.random() * 670);
+            let y = Math.floor(Math.random() * 670);
+            let enemy = new box(x, y, 30, 30);
+            enemies.push(enemy);
+            enemy.draw();
+            // ctx.fillRect(x, y, 30, 30);
+        }, 3000);
+        endbtn.style.display = 'block';
+        startbtn.style.display = 'none';
+    }
+</script>
+</html>

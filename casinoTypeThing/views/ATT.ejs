@@ -22,6 +22,7 @@
     CCCCC   LLLLL   IIIII   EEEEE   NN  NN     T           UUUUU   IIIII -->
 
 <body>
+  <button id="backButton" onclick="goBack()">Go back</button>
   <h1 id="titleText">Around The Table</h1>
   <h2>Welcome, <%= user %>
   </h2>
@@ -91,7 +92,8 @@
     const choiceButtons = document.getElementById('choiceButtons');
     const newRoundBtn = document.getElementById('newRoundButton');
     const cardBoxes = Array.from(document.querySelectorAll('.card-box'));
-    let currentStage = 0;   
+    let currentStage = 0;  
+    winnings = 0; 
 
     function resetFlips() {
       cardBoxes.forEach(box => {
@@ -101,7 +103,19 @@
       });
     }
 
+    function goBack() {
+      gameText.textContent = `You won ${winnings}!`;
+      socket.emit('updateFunds', { user, winnings });
+      setTimeout(homePage, 100);
+    }
+
+    function homePage() {
+      window.location.href = '/';
+    }
+
     function gameReset() {
+      backoutButton.style.display = 'none';
+      currentStage = 0;
       betDiv.style.display = 'block';
       newRoundBtn.style.display = 'none';
       gameText.textContent = 'Place your bet to start a new game.';
@@ -112,6 +126,14 @@
       resetFlips();
     }
     gameReset();
+
+    backoutButton.addEventListener('click', () => {
+      if (currentStage > 0 && currentStage < 4) {
+        const bet = Number(yourBet.textContent.split(': ')[1]);
+        const payout = bet * multipliers[currentStage - 1];
+        endRound(payout);
+      }
+    });
 
 // SSSSS   OOOOO   CCCCC   K   K   EEEEE   TTTTT         SSSSS   TTTTT    U   U   FFFFF   FFFFF
 // S       O   O   C       K  K    EE        T           S         T      U   U   F       F
@@ -141,6 +163,7 @@
     });
 
     socket.on('newATTHand', cards => {
+      console.log(cards);
       gameText.textContent = 'Red or Black?';
       choiceButtons.innerHTML = `
         <button id="redBtn">Red</button>

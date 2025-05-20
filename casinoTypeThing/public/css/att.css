@@ -1,124 +1,133 @@
 @font-face {
-    font-family: 'Casino3DFilledMarquee';
-    src: url('/casino_2/Casino3DFilledMarquee-Italic.ttf') format('truetype');
-    font-style: italic;
-    font-weight: normal;
-    font-display: swap;
-  }
+  font-family: 'Casino3DFilledMarquee';
+  src: url('/casino_2/Casino3DFilledMarquee-Italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: normal;
+  font-display: swap;
+}
 
-  h1 {
-    text-align: center;
-    margin-top: 20px;
-  }
+h1 {
+  text-align: center;
+  margin-top: 20px;
+}
 
-  h2 {
-    text-align: center;
-    margin-top: 10px;
-    color: #fff;
-  }
+h2 {
+  text-align: center;
+  margin-top: 10px;
+  color: #fff;
+}
 
-  .game {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 70vw;
-    height: 50vh;
-    border: 20px solid black;
-    border-radius: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    background-color: #025013;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(5, 5, 5, 0.5);
-  }
+.game {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 50vh;
+  border: 20px solid black;
+  border-radius: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #025013;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(5, 5, 5, 0.5);
+}
 
-  /* card-flip CSS */
-  .flip-container {
-    perspective: 1000px;
-    width: 100%;
-    height: 100%;
-  }
+/* card-flip CSS */
+.flip-container {
+  perspective: 1000px;
+  width: 100%;
+  height: 100%;
+}
 
-  .flipper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
-  }
+.flipper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
 
-  .flipper.flipped {
-    transform: rotateY(180deg);
-  }
+.flipper.flipped {
+  transform: rotateY(180deg);
+}
 
-  .back,
-  .front {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 8px;
-  }
+.back,
+.front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+}
 
-  .back {
-    transform: rotateY(0deg);
-  }
+.back {
+  transform: rotateY(0deg);
+}
 
-  .front {
-    transform: rotateY(180deg);
-  }
+.front {
+  transform: rotateY(180deg);
+}
 
-  #cardBoxes {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    width: 100%;
-    justify-content: center;
-  }
+#cardBoxes {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  justify-content: center;
+}
 
-  .card-box {
-    width: 80px;
-    height: 120px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 2px solid #fff;
-    border-radius: 8px;
-    overflow: hidden;
-  }
+.card-box {
+  width: 80px;
+  height: 120px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 2px solid #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
 
-  #betDiv {
-    text-align: center;
-    margin-bottom: 20px;
-  }
+#betDiv {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-  #choiceButtons button {
-    margin: 5px;
-    padding: 10px 20px;
-  }
+#choiceButtons button {
+  margin: 5px;
+  padding: 10px 20px;
+}
 
-  #titleText {
-    font-family: 'Casino3DFilledMarquee', sans-serif;
-    font-size: 100px;
-    text-align: center;
-    color: #fff;
-    text-shadow: 2px 2px 4px #d30c0c;
-  }
+#titleText {
+  font-family: 'Casino3DFilledMarquee', sans-serif;
+  font-size: 100px;
+  text-align: center;
+  color: #fff;
+  text-shadow: 2px 2px 4px #d30c0c;
+}
 
-  #cardDeckImage {
-    width: 50px;
-    height: 75px;
-    position: relative;
-    top: -5px;
-    left: 0px;
-    z-index: -1;
-  }
+#cardDeckImage {
+  width: 50px;
+  height: 75px;
+  position: relative;
+  top: -5px;
+  left: 0px;
+  z-index: -1;
+}
 
-  #backoutButton{
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: none;
-    z-index: 10;
-  }
+#backoutButton {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: none;
+  z-index: 10;
+}
+
+#backButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+  z-index: 10;
+  display: inline-flex;
+}
