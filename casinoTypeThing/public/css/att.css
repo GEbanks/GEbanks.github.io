@@ -116,9 +116,6 @@ h2 {
 }
 
 #backoutButton {
-  position: absolute;
-  top: 10px;
-  left: 10px;
   display: none;
   z-index: 10;
 }

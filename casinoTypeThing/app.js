@@ -62,5 +62,7 @@ app.get('/logout', routes.logout);
 
 app.get('/janitor', isAuthenticated, routes.janitor);
 
+app.get('/jobs', isAuthenticated, routes.jobs);
+
 io.on('connection', socket.socketH);
 
