@@ -97,6 +97,18 @@ function socketH(socket) {
     });
   });
 
+  socket.on('moneyMade', function (data) {
+    let moneyEarned = data.money
+    let user = data.user
+    db.run('UPDATE users SET money = money + ? WHERE username=?;', [moneyEarned, user], (err) => {
+      if (err) {
+        console.log(err)
+        return;
+      }
+      console.log('Money updated');
+    });
+  });
+
 }
 
 module.exports = { socketH };
