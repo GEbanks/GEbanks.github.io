@@ -1,0 +1,3 @@
+@import url('index.css');
+.grid{display:grid;gap:16px}.cols-2{grid-template-columns:repeat(2,1fr)}@media (max-width:900px){.cols-2{grid-template-columns:1fr}}
+
