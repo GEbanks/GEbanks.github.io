@@ -1,55 +1,1139 @@
 <!DOCTYPE html>
-<title></title>Welcome</title>
-<link rel="stylesheet" href="index.css">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHM 134 – Exam 3 Practice</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #1d2433;
+    --muted: #5b6475;
+    --accent: #2f5bd3;
+    --accent-light: #e6ecfb;
+    --good: #1f9d55;
+    --good-light: #e3f6eb;
+    --bad: #d64545;
+    --bad-light: #fbe7e7;
+    --border: #dde2ec;
+  }
+  body.dark {
+    --bg: #12151c;
+    --card: #1c212b;
+    --text: #e4e8f0;
+    --muted: #9aa3b5;
+    --accent: #6d8ff0;
+    --accent-light: #253154;
+    --good: #4cc483;
+    --good-light: #183a29;
+    --bad: #f07171;
+    --bad-light: #43201f;
+    --border: #2f3646;
+  }
+  body.dark header { background: #1e3a8a; }
+  input[type="text"], textarea, select { background: var(--card); color: var(--text); }
+  code { background: var(--accent-light); padding: 1px 4px; border-radius: 4px; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--accent);
+    color: white;
+    padding: 18px 24px;
+  }
+  header h1 { margin: 0; font-size: 1.5rem; }
+  header p { margin: 4px 0 0; opacity: 0.85; font-size: 0.95rem; }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  nav button {
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  nav button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  #timer { margin-left: auto; font-weight: 600; align-self: center; color: var(--muted); }
+  main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 1.05rem; }
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .choice {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 10px 12px;
+    margin: 6px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.97rem;
+    color: var(--text);
+  }
+  .choice:hover:not(:disabled) { background: var(--accent-light); }
+  .choice.correct { background: var(--good-light); border-color: var(--good); }
+  .choice.wrong { background: var(--bad-light); border-color: var(--bad); }
+  .choice:disabled { cursor: default; }
+  .explain {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 4px solid var(--accent);
+    background: var(--accent-light);
+    border-radius: 6px;
+    display: none;
+  }
+  .explain.show { display: block; }
+  .btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    margin-right: 6px;
+    margin-top: 6px;
+  }
+  .btn.secondary { background: var(--card); color: var(--accent); border: 1px solid var(--accent); }
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.97rem;
+    font-family: inherit;
+    margin-top: 6px;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .feedback { margin-top: 8px; font-weight: 600; }
+  .feedback.good { color: var(--good); }
+  .feedback.bad { color: var(--bad); }
+  .scorebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .score { font-size: 1.1rem; font-weight: 700; }
+  .eq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 6px 20px;
+    font-family: "Cambria Math", Georgia, serif;
+    font-size: 1rem;
+  }
+  .orb { font-family: monospace; font-size: 1.05rem; }
+  .hint { color: var(--muted); font-size: 0.9rem; }
+  h2 { font-size: 1.15rem; margin: 22px 4px 10px; color: var(--muted); }
+  .section { display: none; }
+  .section.active { display: block; }
+  .part { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  select { padding: 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; }
+</style>
 </head>
 <body>
-<header class="site-header">
-<div class="wrap nav">
-<div class="brand">GEbanks</div>
-<nav class="nav-links">
-<a class="nav-link active" href="index.html">Home</a>
-<a class="nav-link" href="community.html">Community</a>
-<a class="nav-link" href="residential.html">Residential</a>
-<a class="nav-link" href="education.html">Education</a>
-<a class="nav-link" href="info.html">Reading Influence</a>
-</nav>
-</div>
+
+<header>
+  <h1>CHM 134 – Exam 3 Practice</h1>
+  <p>Phase changes · Light &amp; photons · Hydrogen atom · Quantum numbers · Electron configurations · Periodic trends</p>
 </header>
 
+<nav>
+  <button data-tab="mc" class="active">Multiple Choice</button>
+  <button data-tab="eq">Equation Questions</button>
+  <button data-tab="more">Configs &amp; Written</button>
+  <button id="darkBtn">🌙 Dark mode</button>
+  <button id="timerBtn" class="secondary">Start 50-min timer</button>
+  <span id="timer"></span>
+</nav>
 
-<main class="wrap">
-<section class="hero">
-<div class="card">
-<h1>Welcome to <em>My Ideal Community</em></h1>
-<p>
-A riverside community inspired by the Latin American hacienda from <em>The House Of Spirits</em>, and neighborhoods built around plazas, schools, and parks. Walkable paths connect homes to parks, plazas, and  libraries. Safety, culture, and opportunity come first.
-</p>
-<div class="grid cols-3">
-<div>🌳 Paths along the rivers, nice ponds, and soccer fields.</div>
-<div>🛍️ A nice shopping plaza with small businesses and crafts.</div>
-<div>🎓 Schools for academics, trades, and community classes.</div>
-</div>
-</div>
-<figure class="card">
-<img src="courtyard_upscaled_8x.png" alt="Sunlit Spanish‑style courtyard with arches and terracotta tile" />
-</figure>
-</section>
+<main>
 
+  <!-- ===================== TAB 1: MULTIPLE CHOICE ===================== -->
+  <section id="mc" class="section active">
+    <div class="card scorebar">
+      <div>
+        <div class="score" id="mcScore">Score: 0 / 0</div>
+        <div class="hint">Pick an answer, or hit "I'm not sure – explain" to see how to work it out first. Explanations you peek at don't count toward your score.</div>
+      </div>
+      <div>
+        <button class="btn secondary" onclick="shuffleExtra()">Shuffle extra Qs</button>
+        <button class="btn secondary" onclick="resetAll()">Reset</button>
+      </div>
+    </div>
+    <h2>From the practice exam (1–11)</h2>
+    <div id="examMC"></div>
+    <h2>Extra practice (same topics)</h2>
+    <div id="extraMC"></div>
+  </section>
 
-<section class="card section-intro">
-<h2>What you’ll find inside</h2>
-<p>
-Explore parks and commerce in <a href="community.html">Community</a>, housing in <a href="residential.html">Residential</a>, schools and training in <a href="education.html">Education</a>, and how <em>The House Of Spirits</em> inspired this idea in <a href="info.html">Reading Influence</a>.
-</p>
-<img src="https://images.unsplash.com/photo-1545243424-0ce743321e11?q=80&w=1200" alt="Bougainvillea climbing a white hacienda wall beside a cobbled lane" />
-</section>
+  <!-- ===================== TAB 2: EQUATION QUESTIONS ===================== -->
+  <section id="eq" class="section">
+    <div class="card">
+      <button class="btn secondary" onclick="toggle('eqSheet')">Show / hide equation sheet</button>
+      <div class="explain" id="eqSheet" style="background:var(--card);border-left-color:var(--border)">
+    <div class="card">
+      <h3>Equations and constants (from the exam sheet)</h3>
+      <div class="eq-grid">
+        <div>R = 8.314 J/(mol·K)</div>
+        <div>R = 0.08206 L·atm/(mol·K)</div>
+        <div>h = 6.626 × 10⁻³⁴ J·s</div>
+        <div>c = 2.998 × 10⁸ m/s</div>
+        <div>N<sub>A</sub> = 6.022 × 10²³ mol⁻¹</div>
+        <div>1 atm = 101.325 kPa</div>
+        <div>T<sub>K</sub> = T<sub>C</sub> + 273.15</div>
+        <div>c = λ · ν</div>
+        <div>E = h · ν</div>
+        <div>E = h · c / λ</div>
+        <div>q = m · c · ΔT</div>
+        <div>q = n · ΔH</div>
+        <div>ΔE = −2.18 × 10⁻¹⁸ J · (1/n<sub>f</sub>² − 1/n<sub>i</sub>²)</div>
+        <div>ln(P₂/P₁) = −(ΔH<sub>vap</sub>/R)(1/T₂ − 1/T₁)</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Quick reminders</h3>
+      <ul>
+        <li><b>Quantum numbers:</b> n = 1, 2, 3… · l = 0 to n−1 (s=0, p=1, d=2, f=3) · m<sub>l</sub> = −l to +l · m<sub>s</sub> = ±½</li>
+        <li><b>Orbitals in shell n:</b> n² · <b>Max electrons:</b> 2n²</li>
+        <li><b>Filling order:</b> 1s 2s 2p 3s 3p 4s 3d 4p 5s 4d 5p…</li>
+        <li><b>Exceptions:</b> Cr = [Ar] 4s¹ 3d⁵ · Cu = [Ar] 4s¹ 3d¹⁰</li>
+        <li><b>Transition metal ions:</b> remove 4s electrons before 3d.</li>
+        <li><b>Hund's rule:</b> one electron in each orbital before pairing.</li>
+        <li><b>Paramagnetic</b> = has unpaired electrons · <b>Diamagnetic</b> = all paired.</li>
+        <li><b>Atomic radius:</b> decreases across a period, increases down a group.</li>
+        <li><b>Ionization energy:</b> increases across a period, decreases down a group.</li>
+        <li><b>Isoelectronic species:</b> more protons = smaller (e.g. Cl⁻ &gt; Ar &gt; K⁺).</li>
+        <li><b>Successive ionization energies:</b> look for the big jump — the number of electrons before it = valence electrons = group.</li>
+        <li><b>ΔE sign:</b> moving up a level (n increases) = positive, photon absorbed. Moving down = negative, photon emitted.</li>
+        <li><b>Phase changes:</b> temperature stays constant — the energy breaks intermolecular forces instead of raising kinetic energy.</li>
+      </ul>
+    </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="scorebar">
+        <div>
+          <div class="score" id="drillScore">Score: 0 / 0</div>
+          <div class="hint">Random numbers every time. Type answers like <code>4.31e-19</code> or <code>4.31 x 10^-19</code>. Within 1% counts as correct.</div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label>Problem type:
+          <select id="drillType">
+            <option value="any">Mix of everything</option>
+            <option value="photonFreq">Photon energy from frequency</option>
+            <option value="photonWave">Photon energy from wavelength</option>
+            <option value="freqWave">Frequency from wavelength</option>
+            <option value="waveEnergy">Wavelength from photon energy</option>
+            <option value="hydrogen">Hydrogen transition ΔE</option>
+            <option value="phase">Heat of a phase change (q = nΔH)</option>
+            <option value="specHeat">Heating a liquid (q = mcΔT)</option>
+            <option value="clausius">Clausius-Clapeyron: find P₂</option>
+            <option value="clausiusT">Clausius-Clapeyron: find T₂</option>
+          </select>
+        </label>
+        <button class="btn" onclick="newDrill()">New problem</button>
+      </div>
+    </div>
+    <div class="card" id="drillCard">
+      <div id="drillQ"></div>
+      <input type="text" id="drillIn" placeholder="Your answer" onkeydown="if(event.key==='Enter')checkDrill()">
+      <button class="btn" onclick="checkDrill()">Check</button>
+      <button class="btn secondary" onclick="toggle('drillEx')">Show solution</button>
+      <button class="btn secondary" onclick="newDrill()">Next</button>
+      <div class="feedback" id="drillFb"></div>
+      <div class="explain" id="drillEx"></div>
+    </div>
+
+    <h2>From the practice exam</h2>
+    <!-- Free response 12 -->
+    <div class="card">
+      <span class="tag">Free response · 15 pts</span>
+      <h3>12) Ethanol vapor pressure</h3>
+      <p>Ethanol has a vapor pressure of 7.87 kPa at 25.0 °C and ΔH<sub>vap</sub> = 42.3 kJ/mol.</p>
+
+      <div class="part">
+        <b>a)</b> What is the vapor pressure of ethanol at 50.0 °C? (in kPa)
+        <input type="text" id="fr12a" placeholder="e.g. 12.3">
+        <button class="btn" onclick="checkNum('fr12a', 29.466, 'kPa', 'fb12a')">Check</button>
+        <button class="btn secondary" onclick="toggle('ex12a')">Show solution</button>
+        <div class="feedback" id="fb12a"></div>
+        <div class="explain" id="ex12a">
+          Isolate P<sub>2</sub> first: P<sub>2</sub> = P<sub>1</sub> · e<sup>−(ΔH/R)(1/T₂ − 1/T₁)</sup><br>
+          T₁ = 25.0 + 273.15 = 298.15 K, T₂ = 50.0 + 273.15 = 323.15 K<br>
+          ΔH/R = 42300 J/mol ÷ 8.314 J/(mol·K) = 5087.8 K<br>
+          1/T₂ − 1/T₁ = −2.59478 × 10⁻⁴ K⁻¹<br>
+          exponent = −(5087.8)(−2.59478 × 10⁻⁴) = 1.320166<br>
+          P₂ = 7.87 kPa × e<sup>1.320166</sup> = 7.87 × 3.744057 = <b>29.5 kPa</b><br>
+          <span class="hint">Common mistakes: using °C instead of K, or leaving ΔH in kJ.</span>
+        </div>
+      </div>
+
+      <div class="part">
+        <b>b)</b> At what temperature (°C) does ethanol's vapor pressure reach 101.325 kPa? What is that temperature called?
+        <input type="text" id="fr12b" placeholder="temperature in °C">
+        <button class="btn" onclick="checkNum('fr12b', 77.5, '°C', 'fb12b', 0.005)">Check</button>
+        <button class="btn secondary" onclick="toggle('ex12b')">Show solution</button>
+        <div class="feedback" id="fb12b"></div>
+        <div class="explain" id="ex12b">
+          Isolate 1/T₂: 1/T₂ = 1/T₁ − (R/ΔH) · ln(P₂/P₁)<br>
+          ln(101.325 / 7.87) = ln(12.87484) = 2.555283<br>
+          1/T₂ = 1/298.15 − 2.555283/5087.8 = 3.354016 × 10⁻³ − 5.02235 × 10⁻⁴ = 2.85178 × 10⁻³ K⁻¹<br>
+          T₂ = 350.659 K → 350.659 − 273.15 = <b>77.5 °C</b><br>
+          Since 101.325 kPa is 1 atm, this is the <b>normal boiling point</b>.
+        </div>
+      </div>
+
+      <div class="part">
+        <b>c)</b> A sealed flask holds liquid ethanol and its vapor at 25.0 °C. The pressure stops changing, but molecules still leave and enter the liquid. Explain and name the condition.
+        <textarea placeholder="Write your answer here, then compare with the key..."></textarea>
+        <button class="btn secondary" onclick="toggle('ex12c')">Show answer</button>
+        <div class="explain" id="ex12c">
+          <b>Dynamic equilibrium.</b> Molecules are still evaporating and condensing, but the two <b>rates are equal</b>, so the number of molecules in the vapor (and the pressure) stays constant. Nothing has stopped — the steady pressure is the vapor pressure of ethanol at 25.0 °C.
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== TAB 3: CONFIGS & WRITTEN ===================== -->
+  <section id="more" class="section">
+    <div class="card scorebar">
+      <div>
+        <div class="score" id="cfgScore">Score: 0 / 0</div>
+        <div class="hint">Figure out the configuration on paper, then enter the number of unpaired electrons.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div id="cfgQ"></div>
+      <input type="text" id="cfgIn" placeholder="Number of unpaired electrons" onkeydown="if(event.key==='Enter')checkCfg()">
+      <button class="btn" onclick="checkCfg()">Check</button>
+      <button class="btn secondary" onclick="toggle('cfgEx')">Show solution</button>
+      <button class="btn secondary" onclick="newCfg()">Next</button>
+      <div class="feedback" id="cfgFb"></div>
+      <div class="explain" id="cfgEx"></div>
+    </div>
+    <!-- Free response 13 -->
+    <div class="card">
+      <span class="tag">Free response · 15 pts</span>
+      <h3>13) Selenium (Z = 34) and cobalt (Z = 27)</h3>
+
+      <div class="part">
+        <b>a)</b> Full electron configuration of Se, noble-gas shorthand, and number of valence electrons.
+        <textarea placeholder="Try it on paper or type it here..."></textarea>
+        <button class="btn secondary" onclick="toggle('ex13a')">Show answer</button>
+        <div class="explain" id="ex13a">
+          Full: 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d¹⁰ 4p⁴<br>
+          Shorthand: [Ar] 4s² 3d¹⁰ 4p⁴<br>
+          Valence electrons: 4s² + 4p⁴ = <b>6</b> (the filled 3d doesn't count). Matches Group 16.
+        </div>
+      </div>
+
+      <div class="part">
+        <b>b)</b> Noble-gas configuration of Co²⁺. Which subshell do the electrons leave from?
+        <textarea placeholder="Your answer..."></textarea>
+        <button class="btn secondary" onclick="toggle('ex13b')">Show answer</button>
+        <div class="explain" id="ex13b">
+          Co: [Ar] 4s² 3d⁷<br>
+          Transition metals lose their <b>4s electrons first</b>, so both leave from 4s:<br>
+          Co²⁺: <b>[Ar] 3d⁷</b>
+        </div>
+      </div>
+
+      <div class="part">
+        <b>c)</b> Orbital diagram of the 3d subshell of Co²⁺, number of unpaired electrons, para- or diamagnetic?
+        <input type="text" id="fr13c" placeholder="number of unpaired electrons">
+        <button class="btn" onclick="checkNum('fr13c', 3, '', 'fb13c', 0)">Check</button>
+        <button class="btn secondary" onclick="toggle('ex13c')">Show answer</button>
+        <div class="feedback" id="fb13c"></div>
+        <div class="explain" id="ex13c">
+          <span class="orb">3d: [↑↓] [↑↓] [↑] [↑] [↑]</span><br>
+          Fill one per orbital first (Hund's rule), then pair. 7 electrons → 2 paired orbitals + 3 single.<br>
+          <b>3 unpaired electrons → paramagnetic.</b> Only species with all electrons paired are diamagnetic.
+        </div>
+      </div>
+    </div>
+
+    <!-- Free response 14 -->
+    <div class="card">
+      <span class="tag">Free response · 15 pts</span>
+      <h3>14) Define and relate: amplitude, wavelength, frequency, photon energy</h3>
+      <textarea placeholder="Write your definitions and comparison in complete sentences..." style="min-height:150px"></textarea>
+      <button class="btn secondary" onclick="toggle('ex14')">Show answer</button>
+      <div class="explain" id="ex14">
+        <b>a) Amplitude:</b> the height of a wave from the midline to a crest. It sets the intensity (brightness) — more photons per second, not more energetic ones.<br><br>
+        <b>b) Wavelength (λ):</b> distance between two identical points on a wave (crest to crest). Measured in m (nm for visible light). Sets the color.<br><br>
+        <b>c) Frequency (ν):</b> number of wave cycles passing a point each second, in Hz (s⁻¹). For light in a vacuum, c = λ · ν.<br><br>
+        <b>d) Photon energy:</b> the energy of one packet of light, E = h · ν. It doesn't change when the light gets brighter.<br><br>
+        <b>e) How they relate:</b> Wavelength and frequency are inversely proportional (c = λν). Photon energy is directly proportional to frequency (E = hν) and inversely proportional to wavelength (E = hc/λ). Short λ = high ν = high photon energy. Amplitude is the odd one out — it only tells you how many photons arrive, not how much energy each one has. That's why in the photoelectric effect, dim blue light ejects electrons but bright red light doesn't.
+      </div>
+    </div>
+  </section>
+
 </main>
 
+<script>
+// ---------- constants ----------
+const h = 6.626e-34;
+const c = 2.998e8;
+const R = 8.314;
 
-<footer class="wrap">
-<div class="card">
-<p><strong>Created by Gabriel Ebanks</strong> for a English assignment</p>
-</div>
-</footer>
+// ---------- tabs ----------
+document.querySelectorAll("nav button[data-tab]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button[data-tab]").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  });
+});
+
+function toggle(id) {
+  document.getElementById(id).classList.toggle("show");
+}
+
+// ---------- timer ----------
+let timerId = null;
+document.getElementById("timerBtn").addEventListener("click", () => {
+  const btn = document.getElementById("timerBtn");
+  const out = document.getElementById("timer");
+  if (timerId) {
+    clearInterval(timerId);
+    timerId = null;
+    out.textContent = "";
+    btn.textContent = "Start 50-min timer";
+    return;
+  }
+  let secs = 50 * 60;
+  btn.textContent = "Stop timer";
+  const tick = () => {
+    const m = Math.floor(secs / 60), s = secs % 60;
+    out.textContent = "⏱ " + m + ":" + String(s).padStart(2, "0");
+    if (secs <= 0) {
+      clearInterval(timerId);
+      timerId = null;
+      out.textContent = "⏱ Time's up!";
+      btn.textContent = "Start 50-min timer";
+    }
+    secs--;
+  };
+  tick();
+  timerId = setInterval(tick, 1000);
+});
+
+// ---------- multiple choice data ----------
+const examQs = [
+  {
+    topic: "Phase changes",
+    q: "1) A beaker of pure water boils on a hot plate. Heat is still flowing into the water, but a thermometer in the liquid holds steady at 100 °C. Why does the temperature stop rising?",
+    choices: [
+      "The heat going in is being used to pull the molecules out of the liquid rather than to raise their average kinetic energy.",
+      "The water has stopped absorbing heat from the hot plate.",
+      "Heat leaves the beaker exactly as fast as it enters, so no energy is left to raise the temperature.",
+      "A thermometer cannot read above the boiling point of the liquid it sits in.",
+      "The hot plate has reached its maximum temperature."
+    ],
+    ans: 0,
+    why: "During a phase change, the energy goes into breaking intermolecular attractions (pulling molecules into the gas), not into increasing kinetic energy. Temperature measures average kinetic energy, so it stays flat."
+  },
+  {
+    topic: "Phase changes",
+    q: "2) How much heat is released when 150.0 g of steam condenses at 100 °C? (ΔH<sub>vap</sub> = 40.7 kJ/mol, H₂O = 18.02 g/mol)",
+    choices: ["50.0 kJ", "0.339 kJ", "339 kJ", "6.11 × 10³ kJ", "2.71 kJ"],
+    ans: 2,
+    why: "n = 150.0 g ÷ 18.02 g/mol = 8.32408 mol<br>q = n · ΔH = 8.32408 × 40.7 = 338.79 kJ → <b>339 kJ</b> released (condensation is the reverse of vaporization)."
+  },
+  {
+    topic: "Light",
+    q: "3) Light of 400 nm and light of 700 nm both travel through the same vacuum. Which statement is correct?",
+    choices: [
+      "The 700 nm light has the higher frequency and the higher energy per photon.",
+      "The 700 nm light travels faster because its wavelength is longer.",
+      "Both carry the same energy per photon, since both travel at the speed of light.",
+      "The 400 nm light has the higher frequency and the higher energy per photon.",
+      "The 400 nm light has the lower frequency but the higher energy per photon."
+    ],
+    ans: 3,
+    why: "ν = c/λ, so shorter wavelength → higher frequency. E = hν, so higher frequency → more energy per photon. All light travels at c in a vacuum."
+  },
+  {
+    topic: "Photon energy",
+    q: "4) What is the energy of a photon with a frequency of 6.50 × 10¹⁴ Hz?",
+    choices: ["2.32 × 10¹⁸ J", "4.31 × 10⁻¹⁹ J", "4.61 × 10⁻⁷ J", "1.53 × 10⁻⁴⁸ J", "4.31 × 10⁻²² J"],
+    ans: 1,
+    why: "E = hν = (6.626 × 10⁻³⁴ J·s)(6.50 × 10¹⁴ s⁻¹) = 4.3069 × 10⁻¹⁹ J → <b>4.31 × 10⁻¹⁹ J</b>"
+  },
+  {
+    topic: "Hydrogen atom",
+    q: "5) A hydrogen discharge tube emits light at only a few discrete wavelengths rather than a continuous band of color. What does that show about the atom?",
+    choices: [
+      "The tube contains too little hydrogen to emit every wavelength at once.",
+      "The electrons in hydrogen can absorb energy but cannot release it.",
+      "Hydrogen has only one electron, so it can emit only one photon at a time.",
+      "The glass of the tube absorbs every wavelength except a few.",
+      "A hydrogen atom can hold only certain specific amounts of energy, so only certain energy differences are available to emit."
+    ],
+    ans: 4,
+    why: "A line spectrum means energy is <b>quantized</b>. Only certain energy levels exist, so only certain energy gaps (and wavelengths) can be emitted."
+  },
+  {
+    topic: "Hydrogen atom",
+    q: "6) An electron in a hydrogen atom moves from the n = 2 level to the n = 5 level. Which statement is correct?",
+    choices: [
+      "ΔE for the electron is negative and a photon is emitted.",
+      "ΔE for the electron is negative and a photon is absorbed.",
+      "ΔE for the electron is positive and a photon must be absorbed.",
+      "ΔE for the electron is positive and a photon is emitted.",
+      "There is no energy change, because the electron stays in the same atom."
+    ],
+    ans: 2,
+    why: "ΔE = −2.18 × 10⁻¹⁸ J (1/5² − 1/2²) = −2.18 × 10⁻¹⁸ J × (−0.2100) → positive. Moving UP needs energy, so a photon is absorbed."
+  },
+  {
+    topic: "Quantum numbers",
+    q: "7) For n = 3, which of the following is the complete list of allowed values of l?",
+    choices: ["0 only", "0, 1 and 2", "0 and 1", "1, 2 and 3", "0, 1, 2 and 3"],
+    ans: 1,
+    why: "l goes from 0 to n − 1. For n = 3: l = 0, 1, 2 (3s, 3p, 3d)."
+  },
+  {
+    topic: "Quantum numbers",
+    q: "8) Why can a d subshell not appear until n = 3?",
+    choices: [
+      "Because the 3d subshell is lower in energy than the 4s subshell.",
+      "Because a d subshell holds 10 electrons, and the first two shells together hold only 8.",
+      "Because m<sub>l</sub> cannot take negative values when n is less than 3.",
+      "Because l can be no larger than n − 1, and a d subshell requires l = 2.",
+      "Because the Pauli exclusion principle forbids more than two electrons in any shell below n = 3."
+    ],
+    ans: 3,
+    why: "A d subshell is l = 2. Since l ≤ n − 1, you need n ≥ 3."
+  },
+  {
+    topic: "Periodic trends",
+    q: "9) Effective nuclear charge rises sharply from left to right across a period, but stays nearly constant from top to bottom down a group. Why?",
+    choices: [
+      "Nuclear charge increases across a period but not down a group.",
+      "Electrons are added to the same shell down a group and to new shells across a period.",
+      "Shielding is caused only by electrons in the same shell, which is why it cannot change down a group.",
+      "Atomic radius decreases across a period, and radius is what effective nuclear charge measures.",
+      "Across a period protons are added while the added electrons are in the same shell and shield each other poorly; down a group each added shell brings core electrons that shield the added protons almost completely."
+    ],
+    ans: 4,
+    why: "Same-shell electrons shield each other poorly, so adding protons across a period raises Z<sub>eff</sub>. Going down a group, the new core electrons cancel out the extra protons."
+  },
+  {
+    topic: "Periodic trends",
+    q: "10) Cl⁻, Ar and K⁺ all have 18 electrons. Arrange them from LARGEST to SMALLEST.",
+    choices: ["Cl⁻ > Ar > K⁺", "K⁺ > Ar > Cl⁻", "Ar > Cl⁻ > K⁺", "Cl⁻ > K⁺ > Ar", "All three are the same size, because all three have 18 electrons."],
+    ans: 0,
+    why: "Same number of electrons, but protons: Cl (17) < Ar (18) < K (19). More protons pull the same electrons in tighter, so K⁺ is smallest."
+  },
+  {
+    topic: "Ionization energy",
+    q: "11) The first four ionization energies of an element are 738, 1451, 7733 and 10540 kJ/mol. Which group does the element belong to?",
+    choices: ["Group 1", "Group 13", "Group 2", "Group 16", "Group 18"],
+    ans: 2,
+    why: "Look at the jumps: 738 → 1451 (about ×2), 1451 → 7733 (more than ×5). The big jump is after the 2nd electron, so there are 2 valence electrons → <b>Group 2</b> (this is Mg)."
+  }
+];
+
+const extraQs = [
+  {
+    topic: "Phase changes",
+    q: "How much heat is needed to vaporize 36.0 g of water at 100 °C? (ΔH<sub>vap</sub> = 40.7 kJ/mol, H₂O = 18.02 g/mol)",
+    choices: ["1.47 × 10³ kJ", "81.3 kJ", "0.885 kJ", "20.4 kJ", "40.7 kJ"],
+    ans: 1,
+    why: "n = 36.0 ÷ 18.02 = 1.9978 mol. q = 1.9978 × 40.7 = 81.3 kJ. (Choice A forgot to convert grams to moles.)"
+  },
+  {
+    topic: "Phase changes",
+    q: "How much heat does it take to warm 50.0 g of liquid water from 20.0 °C to 80.0 °C? (c = 4.184 J/g·°C)",
+    choices: ["4.18 kJ", "16.7 kJ", "12.6 kJ", "251 J", "2.03 × 10³ kJ"],
+    ans: 2,
+    why: "q = mcΔT = (50.0 g)(4.184 J/g·°C)(60.0 °C) = 12,552 J = <b>12.6 kJ</b>"
+  },
+  {
+    topic: "Phase changes",
+    q: "Liquid A has stronger intermolecular forces than liquid B. Compared to B, liquid A has:",
+    choices: [
+      "a higher vapor pressure and a lower boiling point",
+      "a lower vapor pressure and a higher boiling point",
+      "a higher vapor pressure and a higher boiling point",
+      "the same vapor pressure, since temperature controls vapor pressure",
+      "a lower vapor pressure and a lower boiling point"
+    ],
+    ans: 1,
+    why: "Stronger forces hold molecules in the liquid, so fewer escape (lower vapor pressure). You need a higher temperature for the vapor pressure to reach 1 atm (higher boiling point)."
+  },
+  {
+    topic: "Photon energy",
+    q: "What is the wavelength of a photon with an energy of 3.00 × 10⁻¹⁹ J?",
+    choices: ["662 nm", "1.51 × 10¹⁵ nm", "453 nm", "6.62 × 10⁻⁷ nm", "199 nm"],
+    ans: 0,
+    why: "λ = hc/E = (6.626 × 10⁻³⁴)(2.998 × 10⁸) ÷ (3.00 × 10⁻¹⁹) = 6.62 × 10⁻⁷ m = <b>662 nm</b>"
+  },
+  {
+    topic: "Light",
+    q: "What is the frequency of light with a wavelength of 500. nm?",
+    choices: ["1.67 × 10⁻¹⁵ Hz", "6.00 × 10⁵ Hz", "1.50 × 10¹¹ Hz", "6.00 × 10¹⁴ Hz", "3.31 × 10⁻¹⁹ Hz"],
+    ans: 3,
+    why: "Convert nm to m first: 500. nm = 5.00 × 10⁻⁷ m. ν = c/λ = 2.998 × 10⁸ ÷ 5.00 × 10⁻⁷ = <b>6.00 × 10¹⁴ Hz</b>"
+  },
+  {
+    topic: "Light",
+    q: "A very bright red laser does NOT eject electrons from a metal, but a dim violet light does. What explains this?",
+    choices: [
+      "The red laser has too many photons, so they cancel each other out.",
+      "Each violet photon has enough energy to eject an electron; each red photon does not, no matter how many there are.",
+      "Violet light travels faster than red light.",
+      "The red light has a larger amplitude, which lowers its photon energy.",
+      "The metal reflects all red light."
+    ],
+    ans: 1,
+    why: "Photoelectric effect: one photon interacts with one electron. Photon energy depends on frequency (E = hν), not brightness. More amplitude just means more photons, each still too weak."
+  },
+  {
+    topic: "Hydrogen atom",
+    q: "An electron in hydrogen drops from n = 4 to n = 2. What is the wavelength of the emitted photon?",
+    choices: ["122 nm", "656 nm", "486 nm", "4.09 × 10⁻¹⁹ nm", "2.06 × 10⁶ nm"],
+    ans: 2,
+    why: "ΔE = −2.18 × 10⁻¹⁸ (1/2² − 1/4²) = −2.18 × 10⁻¹⁸ × 0.1875 = −4.09 × 10⁻¹⁹ J (negative → emitted).<br>λ = hc/|ΔE| = 1.986 × 10⁻²⁵ ÷ 4.09 × 10⁻¹⁹ = 4.86 × 10⁻⁷ m = <b>486 nm</b>"
+  },
+  {
+    topic: "Hydrogen atom",
+    q: "Which hydrogen transition emits the photon with the HIGHEST energy?",
+    choices: ["n = 3 → n = 2", "n = 2 → n = 1", "n = 4 → n = 3", "n = 1 → n = 2", "n = 5 → n = 4"],
+    ans: 1,
+    why: "Energy levels get closer together as n increases, so drops down to n = 1 are the biggest gaps. n = 1 → 2 is absorption, not emission."
+  },
+  {
+    topic: "Quantum numbers",
+    q: "Which set of quantum numbers (n, l, m<sub>l</sub>, m<sub>s</sub>) is NOT allowed?",
+    choices: ["(3, 2, −2, +½)", "(2, 1, 0, −½)", "(2, 2, 0, +½)", "(4, 0, 0, +½)", "(3, 1, 1, −½)"],
+    ans: 2,
+    why: "l must be ≤ n − 1. For n = 2, l can only be 0 or 1, so l = 2 is not allowed."
+  },
+  {
+    topic: "Quantum numbers",
+    q: "How many orbitals are in the n = 3 shell, and how many electrons can it hold?",
+    choices: ["3 orbitals, 6 electrons", "9 orbitals, 18 electrons", "6 orbitals, 12 electrons", "9 orbitals, 9 electrons", "5 orbitals, 10 electrons"],
+    ans: 1,
+    why: "Orbitals = n² = 9 (one 3s + three 3p + five 3d). Each orbital holds 2 electrons → 18."
+  },
+  {
+    topic: "Quantum numbers",
+    q: "How many values of m<sub>l</sub> are possible for a 4f subshell?",
+    choices: ["3", "4", "5", "7", "14"],
+    ans: 3,
+    why: "f means l = 3. m<sub>l</sub> runs from −3 to +3: −3, −2, −1, 0, 1, 2, 3 → 7 orbitals. (14 is the number of electrons.)"
+  },
+  {
+    topic: "Electron configurations",
+    q: "What is the electron configuration of Fe³⁺ (Fe is Z = 26)?",
+    choices: ["[Ar] 4s² 3d³", "[Ar] 3d⁵", "[Ar] 4s¹ 3d⁴", "[Ar] 4s² 3d⁶", "[Ar] 3d⁶"],
+    ans: 1,
+    why: "Fe = [Ar] 4s² 3d⁶. Remove 4s electrons first (2), then one 3d → [Ar] 3d⁵."
+  },
+  {
+    topic: "Electron configurations",
+    q: "Which ion is diamagnetic?",
+    choices: ["Fe²⁺", "Co²⁺", "Zn²⁺", "Mn²⁺", "Cu²⁺"],
+    ans: 2,
+    why: "Zn²⁺ = [Ar] 3d¹⁰, every d orbital is full → all paired → diamagnetic. The others all have partly filled 3d."
+  },
+  {
+    topic: "Electron configurations",
+    q: "What is the ground-state configuration of chromium (Z = 24)?",
+    choices: ["[Ar] 4s² 3d⁴", "[Ar] 3d⁶", "[Ar] 4s¹ 3d⁵", "[Ar] 4s² 4p⁴", "[Kr] 4s¹ 3d⁵"],
+    ans: 2,
+    why: "Chromium is an exception: a half-filled 3d (3d⁵) is extra stable, so one 4s electron moves up → [Ar] 4s¹ 3d⁵. Copper does the same thing: [Ar] 4s¹ 3d¹⁰."
+  },
+  {
+    topic: "Electron configurations",
+    q: "How many valence electrons does bromine (Z = 35) have?",
+    choices: ["5", "7", "17", "35", "1"],
+    ans: 1,
+    why: "Br = [Ar] 4s² 3d¹⁰ 4p⁵. Valence = 4s² + 4p⁵ = 7 (filled 3d doesn't count). Group 17."
+  },
+  {
+    topic: "Electron configurations",
+    q: "Which ion is isoelectronic with neon?",
+    choices: ["Na⁺", "K⁺", "Cl⁻", "Ca²⁺", "S²⁻"],
+    ans: 0,
+    why: "Neon has 10 electrons. Na⁺ has 11 − 1 = 10. The others have 18 (isoelectronic with Ar)."
+  },
+  {
+    topic: "Periodic trends",
+    q: "Which atom has the LARGEST atomic radius?",
+    choices: ["Cl", "S", "Mg", "Na", "Ar"],
+    ans: 3,
+    why: "All are in period 3. Radius decreases left to right (Z<sub>eff</sub> increases), so Na, the farthest left, is largest."
+  },
+  {
+    topic: "Periodic trends",
+    q: "Which atom has the HIGHEST first ionization energy?",
+    choices: ["Rb", "K", "Na", "Li", "Cs"],
+    ans: 3,
+    why: "Ionization energy decreases down a group because the outer electron is farther from the nucleus. Li is at the top of Group 1."
+  },
+  {
+    topic: "Periodic trends",
+    q: "Arrange from LARGEST to SMALLEST: Mg²⁺, Na⁺, F⁻, O²⁻ (all have 10 electrons).",
+    choices: ["Mg²⁺ > Na⁺ > F⁻ > O²⁻", "O²⁻ > F⁻ > Na⁺ > Mg²⁺", "F⁻ > O²⁻ > Mg²⁺ > Na⁺", "Na⁺ > Mg²⁺ > O²⁻ > F⁻", "All the same size"],
+    ans: 1,
+    why: "Isoelectronic: fewer protons = bigger. O (8) < F (9) < Na (11) < Mg (12) protons, so O²⁻ is biggest and Mg²⁺ is smallest."
+  },
+  {
+    topic: "Ionization energy",
+    q: "The first three ionization energies of an element are 496, 4562 and 6910 kJ/mol. Which group is it in?",
+    choices: ["Group 1", "Group 2", "Group 13", "Group 17", "Group 18"],
+    ans: 0,
+    why: "The huge jump (about ×9) is right after the 1st electron, so it has 1 valence electron → Group 1 (this is Na)."
+  }
+];
+
+// ---------- multiple choice engine ----------
+const mcState = {
+  exam: { qs: examQs, el: "examMC" },
+  extra: { qs: extraQs.slice(), el: "extraMC" }
+};
+const mcScore = { answered: 0, correct: 0, total: examQs.length + extraQs.length };
+
+function renderMC(key) {
+  const st = mcState[key];
+  const box = document.getElementById(st.el);
+  box.innerHTML = "";
+  st.qs.forEach((item, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    let html = `<span class="tag">${item.topic}</span><h3>${key === "extra" ? "E" + (i + 1) + ") " : ""}${item.q}</h3>`;
+    item.choices.forEach((ch, j) => {
+      html += `<button class="choice" data-j="${j}">${"ABCDE"[j]}) ${ch}</button>`;
+    });
+    html += `<button class="btn secondary explainBtn">I'm not sure – explain</button>`;
+    html += `<div class="explain">${item.why}</div>`;
+    card.innerHTML = html;
+    card.querySelectorAll(".choice").forEach(btn => {
+      btn.addEventListener("click", () => answerMC(card, item, Number(btn.dataset.j)));
+    });
+    card.querySelector(".explainBtn").addEventListener("click", () => {
+      // peeking shows the explanation and the right answer, and the question isn't scored
+      card.querySelector(".explain").classList.add("show");
+      if (!card.dataset.done) {
+        card.dataset.done = "peeked";
+        const btns = card.querySelectorAll(".choice");
+        btns.forEach(b => b.disabled = true);
+        btns[item.ans].classList.add("correct");
+      }
+      card.querySelector(".explainBtn").style.display = "none";
+    });
+    box.appendChild(card);
+  });
+}
+
+function answerMC(card, item, j) {
+  if (card.dataset.done) return;
+  card.dataset.done = "answered";
+  const btns = card.querySelectorAll(".choice");
+  btns.forEach(b => b.disabled = true);
+  btns[item.ans].classList.add("correct");
+  if (j !== item.ans) btns[j].classList.add("wrong");
+  else mcScore.correct++;
+  mcScore.answered++;
+  card.querySelector(".explain").classList.add("show");
+  card.querySelector(".explainBtn").style.display = "none";
+  updateScore();
+}
+
+function updateScore() {
+  const pct = mcScore.answered ? Math.round(100 * mcScore.correct / mcScore.answered) : 0;
+  document.getElementById("mcScore").textContent =
+    `Score: ${mcScore.correct} / ${mcScore.answered}` + (mcScore.answered ? ` (${pct}%)` : "") + `  ·  ${mcScore.total} questions`;
+}
+
+function resetAll() {
+  mcScore.answered = 0;
+  mcScore.correct = 0;
+  renderMC("exam");
+  renderMC("extra");
+  updateScore();
+}
+
+function shuffleExtra() {
+  const arr = mcState.extra.qs;
+  for (let i = arr.length - 1; i > 0; i--) {
+    const k = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[k]] = [arr[k], arr[i]];
+  }
+  resetAll();
+}
+
+// ---------- number checking ----------
+function parseNum(str) {
+  let s = String(str).trim().replace(/\s+/g, "").replace(/−/g, "-");
+  s = s.replace(/[×xX*]10\^?/, "e");
+  const v = parseFloat(s);
+  return isNaN(v) ? null : v;
+}
+
+function isClose(user, correct, tol) {
+  if (correct === 0) return Math.abs(user) < 1e-9;
+  return Math.abs(user - correct) / Math.abs(correct) <= tol;
+}
+
+function checkNum(inputId, correct, unit, fbId, tol = 0.01) {
+  const fb = document.getElementById(fbId);
+  const v = parseNum(document.getElementById(inputId).value);
+  if (v === null) { fb.textContent = "Enter a number."; fb.className = "feedback bad"; return; }
+  if (isClose(v, correct, tol)) {
+    fb.textContent = "✓ Correct!";
+    fb.className = "feedback good";
+  } else {
+    fb.textContent = "✗ Not quite. Check your units and try again, or open the solution.";
+    fb.className = "feedback bad";
+  }
+}
+
+// format a number like 4.31 × 10<sup>-19</sup>
+function fmt(x, sig = 3) {
+  const a = Math.abs(x);
+  if (a !== 0 && (a < 0.01 || a >= 10000)) {
+    const [m, e] = x.toExponential(sig - 1).split("e");
+    return `${m} × 10<sup>${Number(e)}</sup>`;
+  }
+  return Number(x.toPrecision(sig)).toString();
+}
+
+function rand(min, max, decimals = 0) {
+  const v = Math.random() * (max - min) + min;
+  return Number(v.toFixed(decimals));
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// ---------- number drills ----------
+const drillGens = {
+  photonFreq() {
+    const m = rand(1.00, 9.99, 2), e = pick([13, 14, 15]);
+    const nu = m * Math.pow(10, e);
+    const E = h * nu;
+    return {
+      q: `What is the energy of a photon with a frequency of ${fmt(nu)} Hz? <span class="hint">(answer in J)</span>`,
+      ans: E,
+      sol: `E = h · ν = (6.626 × 10<sup>-34</sup> J·s)(${fmt(nu)} s<sup>-1</sup>) = <b>${fmt(E)} J</b>`
+    };
+  },
+  photonWave() {
+    const nm = rand(150, 950);
+    const E = h * c / (nm * 1e-9);
+    return {
+      q: `What is the energy of one photon of ${nm} nm light? <span class="hint">(answer in J)</span>`,
+      ans: E,
+      sol: `Convert: ${nm} nm = ${fmt(nm * 1e-9)} m<br>E = hc/λ = (6.626 × 10<sup>-34</sup>)(2.998 × 10<sup>8</sup>) ÷ ${fmt(nm * 1e-9)} = <b>${fmt(E)} J</b>`
+    };
+  },
+  freqWave() {
+    const nm = rand(150, 950);
+    const nu = c / (nm * 1e-9);
+    return {
+      q: `What is the frequency of light with a wavelength of ${nm} nm? <span class="hint">(answer in Hz)</span>`,
+      ans: nu,
+      sol: `Convert: ${nm} nm = ${fmt(nm * 1e-9)} m<br>ν = c/λ = 2.998 × 10<sup>8</sup> m/s ÷ ${fmt(nm * 1e-9)} m = <b>${fmt(nu)} Hz</b>`
+    };
+  },
+  waveEnergy() {
+    const m = rand(2.00, 9.00, 2);
+    const E = m * 1e-19;
+    const lamNm = h * c / E * 1e9;
+    return {
+      q: `A photon has an energy of ${fmt(E)} J. What is its wavelength? <span class="hint">(answer in nm)</span>`,
+      ans: lamNm,
+      sol: `λ = hc/E = (6.626 × 10<sup>-34</sup>)(2.998 × 10<sup>8</sup>) ÷ ${fmt(E)} = ${fmt(lamNm * 1e-9)} m<br>Convert to nm (× 10<sup>9</sup>): <b>${fmt(lamNm)} nm</b>`
+    };
+  },
+  hydrogen() {
+    let ni = rand(1, 6), nf = rand(1, 6);
+    while (nf === ni) nf = rand(1, 6);
+    const term = 1 / (nf * nf) - 1 / (ni * ni);
+    const dE = -2.18e-18 * term;
+    const lam = h * c / Math.abs(dE) * 1e9;
+    return {
+      q: `An electron in a hydrogen atom moves from n = ${ni} to n = ${nf}. What is ΔE for the electron? <span class="hint">(answer in J, include the sign)</span>`,
+      ans: dE,
+      sol: `ΔE = −2.18 × 10<sup>-18</sup> J · (1/${nf}² − 1/${ni}²)<br>(1/${nf * nf} − 1/${ni * ni}) = ${term.toFixed(5)}<br>ΔE = <b>${fmt(dE)} J</b><br>` +
+        (dE > 0 ? `Positive → the electron moves <b>up</b> and a photon is <b>absorbed</b>.` : `Negative → the electron moves <b>down</b> and a photon is <b>emitted</b>.`) +
+        `<br>Photon wavelength: λ = hc/|ΔE| = ${fmt(lam)} nm`
+    };
+  },
+  phase() {
+    const subs = [
+      { name: "water", M: 18.02, kind: "vaporize", verb: "vaporize", dH: 40.7, label: "ΔH<sub>vap</sub>" },
+      { name: "steam", M: 18.02, kind: "condense", verb: "is released when", dH: 40.7, label: "ΔH<sub>vap</sub>" },
+      { name: "ice", M: 18.02, kind: "melt", verb: "melt", dH: 6.01, label: "ΔH<sub>fus</sub>" },
+      { name: "ethanol", M: 46.07, kind: "vaporize", verb: "vaporize", dH: 38.6, label: "ΔH<sub>vap</sub>" }
+    ];
+    const s = pick(subs);
+    const mass = rand(10.0, 250.0, 1);
+    const n = mass / s.M;
+    const q = n * s.dH;
+    let text;
+    if (s.kind === "condense") text = `How much heat is released when ${mass.toFixed(1)} g of steam condenses at 100 °C?`;
+    else text = `How much heat is needed to ${s.verb} ${mass.toFixed(1)} g of ${s.name}?`;
+    return {
+      q: `${text} (${s.label} = ${s.dH} kJ/mol, molar mass = ${s.M} g/mol) <span class="hint">(answer in kJ)</span>`,
+      ans: q,
+      sol: `n = ${mass.toFixed(1)} g ÷ ${s.M} g/mol = ${n.toFixed(4)} mol<br>q = n · ΔH = ${n.toFixed(4)} × ${s.dH} = <b>${fmt(q)} kJ</b>`
+    };
+  },
+  specHeat() {
+    const mass = rand(25.0, 250.0, 1);
+    const T1 = rand(10.0, 40.0, 1);
+    const T2 = rand(50.0, 95.0, 1);
+    const dT = T2 - T1;
+    const q = mass * 4.184 * dT;
+    return {
+      q: `How much heat is needed to warm ${mass.toFixed(1)} g of water from ${T1.toFixed(1)} °C to ${T2.toFixed(1)} °C? (c = 4.184 J/g·°C) <span class="hint">(answer in J)</span>`,
+      ans: q,
+      sol: `ΔT = ${T2.toFixed(1)} − ${T1.toFixed(1)} = ${dT.toFixed(1)} °C<br>q = mcΔT = (${mass.toFixed(1)})(4.184)(${dT.toFixed(1)}) = <b>${fmt(q)} J</b>`
+    };
+  },
+  clausius() {
+    const subs = [
+      { name: "ethanol", P1: 7.87, T1c: 25.0, dH: 42.3 },
+      { name: "water", P1: 3.17, T1c: 25.0, dH: 43.9 },
+      { name: "acetone", P1: 30.8, T1c: 25.0, dH: 31.3 }
+    ];
+    const s = pick(subs);
+    const T2c = pick([30.0, 35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 0.0, 10.0, 15.0]);
+    const T1 = s.T1c + 273.15, T2 = T2c + 273.15;
+    const dHR = s.dH * 1000 / R;
+    const diff = 1 / T2 - 1 / T1;
+    const expo = -dHR * diff;
+    const P2 = s.P1 * Math.exp(expo);
+    return {
+      q: `${s.name[0].toUpperCase() + s.name.slice(1)} has a vapor pressure of ${s.P1} kPa at ${s.T1c.toFixed(1)} °C and ΔH<sub>vap</sub> = ${s.dH} kJ/mol. What is its vapor pressure at ${T2c.toFixed(1)} °C? <span class="hint">(answer in kPa)</span>`,
+      ans: P2,
+      sol: `P₂ = P₁ · e<sup>−(ΔH/R)(1/T₂ − 1/T₁)</sup><br>T₁ = ${T1.toFixed(2)} K, T₂ = ${T2.toFixed(2)} K<br>ΔH/R = ${s.dH * 1000} ÷ 8.314 = ${dHR.toFixed(1)} K<br>1/T₂ − 1/T₁ = ${diff.toExponential(5)} K<sup>-1</sup><br>exponent = ${expo.toFixed(6)}<br>P₂ = ${s.P1} × e<sup>${expo.toFixed(4)}</sup> = ${s.P1} × ${Math.exp(expo).toFixed(5)} = <b>${fmt(P2)} kPa</b>`
+    };
+  },
+  clausiusT() {
+    const subs = [
+      { name: "ethanol", P1: 7.87, T1c: 25.0, dH: 42.3 },
+      { name: "water", P1: 3.17, T1c: 25.0, dH: 43.9 },
+      { name: "acetone", P1: 30.8, T1c: 25.0, dH: 31.3 }
+    ];
+    const s = pick(subs);
+    const P2 = pick([101.325, 50.0, 75.0, 20.0, 60.0]);
+    const T1 = s.T1c + 273.15;
+    const dHR = s.dH * 1000 / R;
+    const lnr = Math.log(P2 / s.P1);
+    const invT2 = 1 / T1 - lnr / dHR;
+    const T2 = 1 / invT2;
+    const T2c = T2 - 273.15;
+    return {
+      q: `${s.name[0].toUpperCase() + s.name.slice(1)} has a vapor pressure of ${s.P1} kPa at ${s.T1c.toFixed(1)} °C and ΔH<sub>vap</sub> = ${s.dH} kJ/mol. At what temperature does its vapor pressure reach ${P2} kPa? <span class="hint">(answer in °C)</span>`,
+      ans: T2c,
+      tol: 0.005,
+      sol: `1/T₂ = 1/T₁ − (R/ΔH) · ln(P₂/P₁)<br>ln(${P2} / ${s.P1}) = ${lnr.toFixed(6)}<br>ΔH/R = ${dHR.toFixed(1)} K<br>1/T₂ = 1/${T1.toFixed(2)} − ${lnr.toFixed(6)}/${dHR.toFixed(1)} = ${invT2.toExponential(5)} K<sup>-1</sup><br>T₂ = ${T2.toFixed(2)} K → <b>${T2c.toFixed(1)} °C</b>` +
+        (P2 === 101.325 ? `<br>At 101.325 kPa (1 atm), this is the <b>normal boiling point</b>.` : "")
+    };
+  }
+};
+
+let currentDrill = null;
+const drillScore = { answered: 0, correct: 0, done: false };
+
+function newDrill() {
+  let type = document.getElementById("drillType").value;
+  if (type === "any") type = pick(Object.keys(drillGens));
+  currentDrill = drillGens[type]();
+  drillScore.done = false;
+  document.getElementById("drillQ").innerHTML = currentDrill.q;
+  document.getElementById("drillIn").value = "";
+  document.getElementById("drillFb").textContent = "";
+  const ex = document.getElementById("drillEx");
+  ex.innerHTML = currentDrill.sol;
+  ex.classList.remove("show");
+}
+
+function checkDrill() {
+  const fb = document.getElementById("drillFb");
+  const v = parseNum(document.getElementById("drillIn").value);
+  if (v === null) { fb.textContent = "Enter a number."; fb.className = "feedback bad"; return; }
+  const ok = isClose(v, currentDrill.ans, currentDrill.tol || 0.01);
+  if (!drillScore.done) {
+    drillScore.answered++;
+    if (ok) drillScore.correct++;
+    drillScore.done = true;
+  }
+  if (ok) {
+    fb.textContent = "✓ Correct!";
+    fb.className = "feedback good";
+  } else {
+    let msg = "✗ Not quite.";
+    if (Math.sign(v) !== Math.sign(currentDrill.ans)) msg += " Check the sign.";
+    else msg += " Check units and powers of 10, or open the solution.";
+    fb.textContent = msg;
+    fb.className = "feedback bad";
+  }
+  document.getElementById("drillScore").textContent =
+    `Score: ${drillScore.correct} / ${drillScore.answered}`;
+}
+
+// ---------- electron configuration drill ----------
+const symbols = ["", "H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar",
+  "K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr"];
+const order = [[1,0],[2,0],[2,1],[3,0],[3,1],[4,0],[3,2],[4,1]];
+const letters = ["s","p","d","f"];
+
+// species to quiz on: [Z, charge]
+const species = [
+  [26,0],[26,2],[26,3],[27,0],[27,2],[27,3],[28,2],[25,2],[25,0],[24,0],[24,3],[29,0],[29,1],[29,2],
+  [30,2],[23,3],[22,0],[22,2],[21,3],[8,0],[7,0],[16,-2],[34,0],[17,-1],[20,2],[15,0],[14,0],[31,3],[6,0],[33,0]
+];
+
+function buildConfig(Z, charge) {
+  // fill in aufbau order
+  const sub = order.map(([n, l]) => ({ n, l, e: 0 }));
+  let left = Z - Math.min(charge, 0); // neutral atom, plus extra electrons for anions
+  for (const s of sub) {
+    const cap = 2 * (2 * s.l + 1);
+    const add = Math.min(cap, left);
+    s.e = add;
+    left -= add;
+  }
+  const find = (n, l) => sub.find(s => s.n === n && s.l === l);
+  // exceptions Cr and Cu
+  if (Z === 24) { find(4,0).e = 1; find(3,2).e = 5; }
+  if (Z === 29) { find(4,0).e = 1; find(3,2).e = 10; }
+  // remove electrons for cations: highest n first, then highest l
+  let remove = Math.max(charge, 0);
+  while (remove > 0) {
+    const filled = sub.filter(s => s.e > 0);
+    filled.sort((a, b) => b.n - a.n || b.l - a.l);
+    filled[0].e--;
+    remove--;
+  }
+  return sub.filter(s => s.e > 0);
+}
+
+function configString(sub) {
+  return sub.map(s => `${s.n}${letters[s.l]}<sup>${s.e}</sup>`).join(" ");
+}
+
+function unpairedOf(s) {
+  const k = 2 * s.l + 1;
+  return s.e <= k ? s.e : 2 * k - s.e;
+}
+
+function boxDiagram(s) {
+  const k = 2 * s.l + 1;
+  const boxes = [];
+  for (let i = 0; i < k; i++) {
+    const up = s.e > i ? 1 : 0;
+    const down = s.e > i + k ? 1 : 0;
+    boxes.push("[" + (up ? "↑" : " ") + (down ? "↓" : " ") + "]");
+  }
+  return `${s.n}${letters[s.l]}: ` + boxes.join(" ");
+}
+
+function chargeLabel(q) {
+  if (q === 0) return "";
+  const mag = Math.abs(q) === 1 ? "" : Math.abs(q);
+  return `<sup>${mag}${q > 0 ? "+" : "−"}</sup>`;
+}
+
+let currentCfg = null;
+const cfgScore = { answered: 0, correct: 0, done: false };
+
+function newCfg() {
+  const [Z, q] = pick(species);
+  const sub = buildConfig(Z, q);
+  const unpaired = sub.reduce((t, s) => t + unpairedOf(s), 0);
+  const electrons = Z - q;
+  const partial = sub.filter(s => unpairedOf(s) > 0);
+  currentCfg = { ans: unpaired };
+  cfgScore.done = false;
+  const name = symbols[Z] + chargeLabel(q);
+  document.getElementById("cfgQ").innerHTML =
+    `<span class="tag">Z = ${Z}</span><h3>How many unpaired electrons does ${name} have?</h3>` +
+    `<p class="hint">Also decide: paramagnetic or diamagnetic?</p>`;
+  let sol = `${name} has ${electrons} electrons.<br>Configuration: <b>${configString(sub)}</b><br>`;
+  if (Z === 24 || Z === 29) sol += `<span class="hint">${symbols[Z]} is an exception: one 4s electron moves into 3d for a half-filled/full d subshell.</span><br>`;
+  if (q > 0 && Z >= 21 && Z <= 30) sol += `<span class="hint">Transition metal ion: the 4s electrons are removed before the 3d.</span><br>`;
+  if (partial.length) sol += `<span class="orb">${partial.map(boxDiagram).join("<br>")}</span><br>`;
+  sol += `Unpaired electrons: <b>${unpaired}</b> → <b>${unpaired > 0 ? "paramagnetic" : "diamagnetic"}</b>`;
+  const ex = document.getElementById("cfgEx");
+  ex.innerHTML = sol;
+  ex.classList.remove("show");
+  document.getElementById("cfgIn").value = "";
+  document.getElementById("cfgFb").textContent = "";
+}
+
+function checkCfg() {
+  const fb = document.getElementById("cfgFb");
+  const v = parseNum(document.getElementById("cfgIn").value);
+  if (v === null) { fb.textContent = "Enter a number."; fb.className = "feedback bad"; return; }
+  const ok = v === currentCfg.ans;
+  if (!cfgScore.done) {
+    cfgScore.answered++;
+    if (ok) cfgScore.correct++;
+    cfgScore.done = true;
+  }
+  fb.textContent = ok ? "✓ Correct!" : "✗ Not quite. Write out the configuration and use Hund's rule.";
+  fb.className = "feedback " + (ok ? "good" : "bad");
+  document.getElementById("cfgScore").textContent = `Score: ${cfgScore.correct} / ${cfgScore.answered}`;
+}
+
+// ---------- dark mode ----------
+const darkBtn = document.getElementById("darkBtn");
+function setDark(on) {
+  document.body.classList.toggle("dark", on);
+  darkBtn.textContent = on ? "☀️ Light mode" : "🌙 Dark mode";
+  try { localStorage.setItem("chm134-dark", on ? "1" : "0"); } catch (e) {}
+}
+darkBtn.addEventListener("click", () => setDark(!document.body.classList.contains("dark")));
+try { setDark(localStorage.getItem("chm134-dark") === "1"); } catch (e) {}
+
+// ---------- start ----------
+resetAll();
+newDrill();
+newCfg();
+</script>
 </body>
 </html>
